@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { StoreVisibilityToggle } from '@/components/admin/StoreVisibilityToggle'
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
@@ -25,11 +26,11 @@ export default async function AdminDashboard() {
     .limit(5)
 
   // Fetch ad performance
-  const { data: adImpressions } = await supabase
+  const { count: adImpressions } = await supabase
     .from('ad_impressions')
     .select('*', { count: 'exact', head: true })
 
-  const { data: adClicks } = await supabase
+  const { count: adClicks } = await supabase
     .from('ad_clicks')
     .select('*', { count: 'exact', head: true })
 
@@ -138,6 +139,12 @@ export default async function AdminDashboard() {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Site Settings */}
+      <div>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Site Settings</h2>
+        <StoreVisibilityToggle />
       </div>
 
       {/* Recent Posts */}

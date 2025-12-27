@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { getProductBySlug } from '@/lib/queries/products'
 import { PriceDisplay } from '@/components/store/PriceDisplay'
 import { BuyButton } from '@/components/store/BuyButton'
+import { ProductJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd'
 
 // Dynamic page - products change frequently
 export const dynamic = 'force-dynamic'
@@ -72,10 +73,27 @@ export default async function ProductPage({ params }: Props) {
     }
   }
 
+  const baseUrl = 'https://sullysblog.com'
+
   return (
-    <div className="max-w-6xl mx-auto">
-      {/* Breadcrumb */}
-      <nav className="mb-8">
+    <>
+      <ProductJsonLd
+        name={product.name}
+        description={product.short_description || product.description || product.name}
+        url={`${baseUrl}/store/${product.slug}`}
+        imageUrl={product.cover_image_url || undefined}
+        price={product.price}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', url: baseUrl },
+          { name: 'Playbooks & Training', url: `${baseUrl}/store` },
+          { name: product.name, url: `${baseUrl}/store/${product.slug}` },
+        ]}
+      />
+      <div className="max-w-6xl mx-auto">
+        {/* Breadcrumb */}
+        <nav className="mb-8">
         <ol className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
           <li>
             <Link href="/store" className="hover:text-blue-600 dark:hover:text-blue-400">
@@ -194,6 +212,7 @@ export default async function ProductPage({ params }: Props) {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }

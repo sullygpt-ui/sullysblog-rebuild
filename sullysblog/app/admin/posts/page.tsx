@@ -97,9 +97,9 @@ export default async function PostsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    {post.category ? (
+                    {post.category?.[0] ? (
                       <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                        {post.category.name}
+                        {post.category[0].name}
                       </span>
                     ) : (
                       <span className="text-sm text-gray-400">No category</span>

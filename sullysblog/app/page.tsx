@@ -1,9 +1,54 @@
+import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { StickySidebar } from '@/components/layout/StickySidebar'
 import { PlaceholderImage } from '@/components/ui/PlaceholderImage'
+import { WebSiteJsonLd } from '@/components/seo/JsonLd'
+import { AdZone } from '@/components/ads/AdZone'
+
+export const metadata: Metadata = {
+  title: 'SullysBlog.com - Domain Investing Tips, Strategies & News',
+  description: 'Expert insights on domain investing, keyword premium domains, buying and selling domains, valuation strategies, and industry news from Michael Sullivan.',
+  keywords: 'domain investing, domain names, premium domains, keyword domains, domain tips, selling domains, domain valuation, domain flipping',
+  openGraph: {
+    title: 'SullysBlog.com - Domain Investing Tips & Strategies',
+    description: 'Expert insights on domain investing, premium domains, and industry news.',
+    url: 'https://sullysblog.com',
+    siteName: 'SullysBlog.com',
+    type: 'website',
+    locale: 'en_US',
+    images: [
+      {
+        url: 'https://sullysblog.com/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'SullysBlog.com - Domain Investing Tips',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SullysBlog.com - Domain Investing Tips & Strategies',
+    description: 'Expert insights on domain investing, premium domains, and industry news.',
+    creator: '@Sullys_Blog',
+    images: ['https://sullysblog.com/og-image.png'],
+  },
+  alternates: {
+    canonical: 'https://sullysblog.com',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+}
 
 export default async function Home() {
   const supabase = await createClient()
@@ -51,8 +96,10 @@ export default async function Home() {
   const hasSponsorAds = (sponsorAdsCount ?? 0) > 0
 
   return (
-    <div className="min-h-screen">
-      {/* Sponsor Ads Section */}
+    <>
+      <WebSiteJsonLd />
+      <div className="min-h-screen">
+        {/* Sponsor Ads Section */}
       {hasSponsorAds && (
         <div className="bg-gray-100 dark:bg-gray-900 py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -103,12 +150,12 @@ export default async function Home() {
                         )}
                       </div>
                       <div className="p-4 md:py-3 md:w-2/3">
-                        {post.category && (
+                        {post.category?.[0] && (
                           <Link
-                            href={`/category/${post.category.slug}`}
+                            href={`/category/${post.category[0].slug}`}
                             className="inline-block mb-2 text-sm font-medium text-blue-400 hover:underline"
                           >
-                            {post.category.name}
+                            {post.category[0].name}
                           </Link>
                         )}
                         <h3 className="text-2xl font-bold text-white mb-3">
@@ -250,6 +297,7 @@ export default async function Home() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

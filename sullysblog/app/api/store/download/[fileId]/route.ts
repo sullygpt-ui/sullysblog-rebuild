@@ -59,12 +59,14 @@ export async function GET(
       .eq('product_id', file.product_id)
 
     // Increment download count manually (since we need to add, not set)
-    await supabase.rpc('increment_download_count', {
-      access_user_id: user.id,
-      access_product_id: file.product_id
-    }).then(() => {}).catch(() => {
+    try {
+      await supabase.rpc('increment_download_count', {
+        access_user_id: user.id,
+        access_product_id: file.product_id
+      })
+    } catch {
       // If RPC doesn't exist, just skip - the basic update above will work
-    })
+    }
 
     return NextResponse.json({
       url: signedUrl.signedUrl,

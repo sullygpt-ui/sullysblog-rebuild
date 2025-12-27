@@ -10,8 +10,11 @@ type EmailOptions = {
 
 export async function sendEmail({ to, subject, html }: EmailOptions) {
   try {
+    // Use Resend's default sender until custom domain is verified
+    // To use your own domain, verify it at https://resend.com/domains
+    // then set EMAIL_FROM=SullysBlog <noreply@sullysblog.com>
     const { data, error } = await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'SullysBlog <noreply@sullysblog.com>',
+      from: process.env.EMAIL_FROM || 'SullysBlog <onboarding@resend.dev>',
       to: [to],
       subject,
       html,

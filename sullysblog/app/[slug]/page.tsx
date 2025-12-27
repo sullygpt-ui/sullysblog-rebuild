@@ -9,6 +9,7 @@ import { RelatedPosts } from '@/components/blog/RelatedPosts'
 import { CommentList } from '@/components/blog/CommentList'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { StickySidebar } from '@/components/layout/StickySidebar'
+import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd'
 
 // Reserved routes that should not be caught by [slug]
 const RESERVED_ROUTES = ['test', 'blog', 'domain-name-dictionary', 'api', 'admin']
@@ -113,13 +114,34 @@ export default async function PostPage({ params }: Props) {
     getCommentsByPostId(post.id)
   ])
 
+  const baseUrl = 'https://sullysblog.com'
+
   return (
-    <div className="max-w-7xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Content */}
-        <div className="lg:col-span-2">
-          {/* Post Header */}
-          <PostHeader post={post} />
+    <>
+      <ArticleJsonLd
+        title={post.title}
+        description={post.seo_description || post.excerpt || post.title}
+        url={`${baseUrl}/${post.slug}`}
+        imageUrl={post.featured_image_url || undefined}
+        datePublished={post.published_at || post.created_at}
+        dateModified={post.updated_at}
+        authorName="Michael Sullivan"
+        categoryName={post.category?.name}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', url: baseUrl },
+          { name: 'Blog', url: `${baseUrl}/blog` },
+          ...(post.category ? [{ name: post.category.name, url: `${baseUrl}/category/${post.category.slug}` }] : []),
+          { name: post.title, url: `${baseUrl}/${post.slug}` },
+        ]}
+      />
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            {/* Post Header */}
+            <PostHeader post={post} />
 
           {/* Post Content */}
           <PostContent content={post.content} />
@@ -141,5 +163,6 @@ export default async function PostPage({ params }: Props) {
         </div>
       </div>
     </div>
+    </>
   )
 }

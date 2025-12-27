@@ -3783,5 +3783,820 @@
     "source": "/:year(\\d{4})/:month(\\d{2})/:slug",
     "destination": "/:slug",
     "permanent": true
+  },
+  {
+    "source": "/contact-information/",
+    "destination": "/contact",
+    "permanent": true
+  },
+  {
+    "source": "/contact-information",
+    "destination": "/contact",
+    "permanent": true
+  },
+  {
+    "source": "/the-ultimate-domain-name-resource-guide/",
+    "destination": "/domain-resources",
+    "permanent": true
+  },
+  {
+    "source": "/the-ultimate-domain-name-resource-guide",
+    "destination": "/domain-resources",
+    "permanent": true
+  },
+  {
+    "source": "/ultimate-domain-name-resource/",
+    "destination": "/domain-resources",
+    "permanent": true
+  },
+  {
+    "source": "/ultimate-domain-name-resource",
+    "destination": "/domain-resources",
+    "permanent": true
+  },
+  {
+    "source": "/shop/",
+    "destination": "/store",
+    "permanent": true
+  },
+  {
+    "source": "/shop",
+    "destination": "/store",
+    "permanent": true
+  },
+  {
+    "source": "/work-with-me/",
+    "destination": "/contact",
+    "permanent": true
+  },
+  {
+    "source": "/work-with-me",
+    "destination": "/contact",
+    "permanent": true
+  },
+  {
+    "source": "/welcome-to-domain-investing/",
+    "destination": "/blog",
+    "permanent": true
+  },
+  {
+    "source": "/welcome-to-domain-investing",
+    "destination": "/blog",
+    "permanent": true
+  },
+  {
+    "source": "/author/sully/",
+    "destination": "/about",
+    "permanent": true
+  },
+  {
+    "source": "/author/sully",
+    "destination": "/about",
+    "permanent": true
+  },
+  {
+    "source": "/author/:slug/",
+    "destination": "/about",
+    "permanent": true
+  },
+  {
+    "source": "/author/:slug",
+    "destination": "/about",
+    "permanent": true
+  },
+  {
+    "source": "/category/domians/",
+    "destination": "/category/domains",
+    "permanent": true
+  },
+  {
+    "source": "/category/domians",
+    "destination": "/category/domains",
+    "permanent": true
+  },
+  {
+    "source": "/my-account/",
+    "destination": "/store/orders",
+    "permanent": true
+  },
+  {
+    "source": "/my-account",
+    "destination": "/store/orders",
+    "permanent": true
+  },
+  {
+    "source": "/my-courses/",
+    "destination": "/store/orders",
+    "permanent": true
+  },
+  {
+    "source": "/my-courses",
+    "destination": "/store/orders",
+    "permanent": true
+  },
+  {
+    "source": "/checkout/",
+    "destination": "/store",
+    "permanent": true
+  },
+  {
+    "source": "/checkout",
+    "destination": "/store",
+    "permanent": true
+  },
+  {
+    "source": "/cart/",
+    "destination": "/store",
+    "permanent": true
+  },
+  {
+    "source": "/cart",
+    "destination": "/store",
+    "permanent": true
+  },
+  {
+    "source": "/about-3/",
+    "destination": "/about",
+    "permanent": true
+  },
+  {
+    "source": "/about-3",
+    "destination": "/about",
+    "permanent": true
+  },
+  {
+    "source": "/interviews/",
+    "destination": "/blog",
+    "permanent": true
+  },
+  {
+    "source": "/interviews",
+    "destination": "/blog",
+    "permanent": true
+  },
+  {
+    "source": "/advertising/",
+    "destination": "/contact",
+    "permanent": true
+  },
+  {
+    "source": "/advertising",
+    "destination": "/contact",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/icann-60-day-rule/",
+    "destination": "/domain-name-dictionary/icann-60-day-rule",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/acronym/",
+    "destination": "/domain-name-dictionary/acronym",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/aftermarket/",
+    "destination": "/domain-name-dictionary/aftermarket",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/alpha-domain/",
+    "destination": "/domain-name-dictionary/alpha-domain",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/arin/",
+    "destination": "/domain-name-dictionary/arin",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/auction-2/",
+    "destination": "/domain-name-dictionary/auction-2",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/backorder/",
+    "destination": "/domain-name-dictionary/backorder",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/brandable/",
+    "destination": "/domain-name-dictionary/brandable",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/buy-it-now/",
+    "destination": "/domain-name-dictionary/buy-it-now",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/cctld/",
+    "destination": "/domain-name-dictionary/cctld",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/closeout-domain/",
+    "destination": "/domain-name-dictionary/closeout-domain",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/co/",
+    "destination": "/domain-name-dictionary/co",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/com/",
+    "destination": "/domain-name-dictionary/com",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/cybersquatting/",
+    "destination": "/domain-name-dictionary/cybersquatting",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/deleted-domain/",
+    "destination": "/domain-name-dictionary/deleted-domain",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/dhcp/",
+    "destination": "/domain-name-dictionary/dhcp",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/dictionary-domain-name/",
+    "destination": "/domain-name-dictionary/dictionary-domain-name",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/dns/",
+    "destination": "/domain-name-dictionary/dns",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/domain/",
+    "destination": "/domain-name-dictionary/domain",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/domain-flipping/",
+    "destination": "/domain-name-dictionary/domain-flipping",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/domain-hack/",
+    "destination": "/domain-name-dictionary/domain-hack",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/domain-investing/",
+    "destination": "/domain-name-dictionary/domain-investing",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/domaining/",
+    "destination": "/domain-name-dictionary/domaining",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/domain-king/",
+    "destination": "/domain-name-dictionary/domain-king",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/domain-name/",
+    "destination": "/domain-name-dictionary/domain-name",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/drop/",
+    "destination": "/domain-name-dictionary/drop",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/drop-catch/",
+    "destination": "/domain-name-dictionary/drop-catch",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/edu/",
+    "destination": "/domain-name-dictionary/edu",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/emoji/",
+    "destination": "/domain-name-dictionary/emoji",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/end-user-2/",
+    "destination": "/domain-name-dictionary/end-user-2",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/expiring-domain/",
+    "destination": "/domain-name-dictionary/expiring-domain",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/hack/",
+    "destination": "/domain-name-dictionary/hack",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/escrow/",
+    "destination": "/domain-name-dictionary/escrow",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/geo-domain/",
+    "destination": "/domain-name-dictionary/geo-domain",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/google-trends/",
+    "destination": "/domain-name-dictionary/google-trends",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/gov/",
+    "destination": "/domain-name-dictionary/gov",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/gtld/",
+    "destination": "/domain-name-dictionary/gtld",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/hand-registered/",
+    "destination": "/domain-name-dictionary/hand-registered",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/hijacking/",
+    "destination": "/domain-name-dictionary/hijacking",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/https/",
+    "destination": "/domain-name-dictionary/https",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/hyphenated-domain/",
+    "destination": "/domain-name-dictionary/hyphenated-domain",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/inbound-sale/",
+    "destination": "/domain-name-dictionary/inbound-sale",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/info/",
+    "destination": "/domain-name-dictionary/info",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/io/",
+    "destination": "/domain-name-dictionary/io",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/ip-address/",
+    "destination": "/domain-name-dictionary/ip-address",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/ipsec/",
+    "destination": "/domain-name-dictionary/ipsec",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/ipv4/",
+    "destination": "/domain-name-dictionary/ipv4",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/ipv6/",
+    "destination": "/domain-name-dictionary/ipv6",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/isp/",
+    "destination": "/domain-name-dictionary/isp",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/keyword-domain/",
+    "destination": "/domain-name-dictionary/keyword-domain",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/make-an-offer/",
+    "destination": "/domain-name-dictionary/make-an-offer",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/me/",
+    "destination": "/domain-name-dictionary/me",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/mil/",
+    "destination": "/domain-name-dictionary/mil",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/mobi/",
+    "destination": "/domain-name-dictionary/mobi",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/net/",
+    "destination": "/domain-name-dictionary/net",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/numeric-domain/",
+    "destination": "/domain-name-dictionary/numeric-domain",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/org/",
+    "destination": "/domain-name-dictionary/org",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/organic-search/",
+    "destination": "/domain-name-dictionary/organic-search",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/outbound-sale/",
+    "destination": "/domain-name-dictionary/outbound-sale",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/portfolio/",
+    "destination": "/domain-name-dictionary/portfolio",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/premium-domain/",
+    "destination": "/domain-name-dictionary/premium-domain",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/push/",
+    "destination": "/domain-name-dictionary/push",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/registrant/",
+    "destination": "/domain-name-dictionary/registrant",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/registrar/",
+    "destination": "/domain-name-dictionary/registrar",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/registry/",
+    "destination": "/domain-name-dictionary/registry",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/sld/",
+    "destination": "/domain-name-dictionary/sld",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/spam/",
+    "destination": "/domain-name-dictionary/spam",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/ssl/",
+    "destination": "/domain-name-dictionary/ssl",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/tld/",
+    "destination": "/domain-name-dictionary/tld",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/tls/",
+    "destination": "/domain-name-dictionary/tls",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/trademark/",
+    "destination": "/domain-name-dictionary/trademark",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/tv/",
+    "destination": "/domain-name-dictionary/tv",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/type-in-traffic/",
+    "destination": "/domain-name-dictionary/type-in-traffic",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/typo-domain/",
+    "destination": "/domain-name-dictionary/typo-domain",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/url/",
+    "destination": "/domain-name-dictionary/url",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/valuation/",
+    "destination": "/domain-name-dictionary/valuation",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/w3c/",
+    "destination": "/domain-name-dictionary/w3c",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/web-browser/",
+    "destination": "/domain-name-dictionary/web-browser",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/whois/",
+    "destination": "/domain-name-dictionary/whois",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/end-user/",
+    "destination": "/domain-name-dictionary/end-user",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/eigrp/",
+    "destination": "/domain-name-dictionary/eigrp",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/renewal-costs/",
+    "destination": "/domain-name-dictionary/renewal-costs",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/seo/",
+    "destination": "/domain-name-dictionary/seo",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/serp/",
+    "destination": "/domain-name-dictionary/serp",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/icann/",
+    "destination": "/domain-name-dictionary/icann",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/idna/",
+    "destination": "/domain-name-dictionary/idna",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/ddns/",
+    "destination": "/domain-name-dictionary/ddns",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/wipo/",
+    "destination": "/domain-name-dictionary/wipo",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/urs/",
+    "destination": "/domain-name-dictionary/urs",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/fractional-domain-name-ownership/",
+    "destination": "/domain-name-dictionary/fractional-domain-name-ownership",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/punnycode/",
+    "destination": "/domain-name-dictionary/punnycode",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/reverse-hijacking/",
+    "destination": "/domain-name-dictionary/reverse-hijacking",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/registration-fee/",
+    "destination": "/domain-name-dictionary/registration-fee",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/sunrise-period/",
+    "destination": "/domain-name-dictionary/sunrise-period",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/reverse-auctions/",
+    "destination": "/domain-name-dictionary/reverse-auctions",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/parking/",
+    "destination": "/domain-name-dictionary/parking",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/long-tail/",
+    "destination": "/domain-name-dictionary/long-tail",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/generic-domain/",
+    "destination": "/domain-name-dictionary/generic-domain",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/gdpr/",
+    "destination": "/domain-name-dictionary/gdpr",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/transfer/",
+    "destination": "/domain-name-dictionary/transfer",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/udrp/",
+    "destination": "/domain-name-dictionary/udrp",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/:term/",
+    "destination": "/domain-name-dictionary/:term",
+    "permanent": true
+  },
+  {
+    "source": "/domain-name-dictionary/",
+    "destination": "/domain-name-dictionary",
+    "permanent": true
+  },
+  {
+    "source": "/feed/",
+    "destination": "/rss.xml",
+    "permanent": true
+  },
+  {
+    "source": "/feed",
+    "destination": "/rss.xml",
+    "permanent": true
+  },
+  {
+    "source": "/rss/",
+    "destination": "/rss.xml",
+    "permanent": true
+  },
+  {
+    "source": "/rss",
+    "destination": "/rss.xml",
+    "permanent": true
+  },
+  {
+    "source": "/wp-admin",
+    "destination": "/",
+    "permanent": true
+  },
+  {
+    "source": "/wp-admin/:path*",
+    "destination": "/",
+    "permanent": true
+  },
+  {
+    "source": "/wp-login.php",
+    "destination": "/",
+    "permanent": true
+  },
+  {
+    "source": "/wp-content/:path*",
+    "destination": "/",
+    "permanent": false
+  },
+  {
+    "source": "/page/:num/",
+    "destination": "/blog?page=:num",
+    "permanent": true
+  },
+  {
+    "source": "/page/:num",
+    "destination": "/blog?page=:num",
+    "permanent": true
+  },
+  {
+    "source": "/reviews/",
+    "destination": "/blog",
+    "permanent": true
+  },
+  {
+    "source": "/reviews",
+    "destination": "/blog",
+    "permanent": true
+  },
+  {
+    "source": "/available-domains/",
+    "destination": "/contact",
+    "permanent": true
+  },
+  {
+    "source": "/available-domains",
+    "destination": "/contact",
+    "permanent": true
+  },
+  {
+    "source": "/keyword-domain-testimonials/",
+    "destination": "/about",
+    "permanent": true
+  },
+  {
+    "source": "/keyword-domain-testimonials",
+    "destination": "/about",
+    "permanent": true
+  },
+  {
+    "source": "/gallery/",
+    "destination": "/blog",
+    "permanent": true
+  },
+  {
+    "source": "/gallery",
+    "destination": "/blog",
+    "permanent": true
+  },
+  {
+    "source": "/portfolio-3-columns/",
+    "destination": "/blog",
+    "permanent": true
+  },
+  {
+    "source": "/portfolio-2-columns/",
+    "destination": "/blog",
+    "permanent": true
+  },
+  {
+    "source": "/portfolio-with-sidebar/",
+    "destination": "/blog",
+    "permanent": true
+  },
+  {
+    "source": "/grid-3-columns/",
+    "destination": "/blog",
+    "permanent": true
+  },
+  {
+    "source": "/grid-2-columns/",
+    "destination": "/blog",
+    "permanent": true
+  },
+  {
+    "source": "/grid-with-sidebar/",
+    "destination": "/blog",
+    "permanent": true
+  },
+  {
+    "source": "/sign-up/",
+    "destination": "/auth/register",
+    "permanent": true
+  },
+  {
+    "source": "/sign-up",
+    "destination": "/auth/register",
+    "permanent": true
+  },
+  {
+    "source": "/registration-successful/",
+    "destination": "/auth/login",
+    "permanent": true
+  },
+  {
+    "source": "/course-registration/",
+    "destination": "/store",
+    "permanent": true
   }
 ]
