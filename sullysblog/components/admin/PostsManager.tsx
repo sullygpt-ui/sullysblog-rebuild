@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 type Post = {
   id: string
@@ -19,16 +20,46 @@ type PostsManagerProps = {
 }
 
 export function PostsManager({ initialPosts }: PostsManagerProps) {
+  const router = useRouter()
+  const [posts, setPosts] = useState(initialPosts)
   const [searchTerm, setSearchTerm] = useState('')
+  const [deleting, setDeleting] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'published_at' | 'created_at' | 'title' | 'view_count'>('published_at')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [currentPage, setCurrentPage] = useState(1)
   const postsPerPage = 50
 
+  // Delete handler
+  const handleDelete = async (post: Post) => {
+    if (!confirm(`Are you sure you want to delete "${post.title}"? This cannot be undone.`)) {
+      return
+    }
+
+    setDeleting(post.id)
+    try {
+      const response = await fetch(`/api/admin/posts/${post.id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to delete post')
+      }
+
+      // Remove from local state
+      setPosts(posts.filter(p => p.id !== post.id))
+    } catch (error) {
+      console.error('Error deleting post:', error)
+      alert(error instanceof Error ? error.message : 'Failed to delete post')
+    } finally {
+      setDeleting(null)
+    }
+  }
+
   // Filter and sort posts
   const filteredPosts = useMemo(() => {
-    let filtered = [...initialPosts]
+    let filtered = [...posts]
 
     // Search filter
     if (searchTerm) {
@@ -76,7 +107,7 @@ export function PostsManager({ initialPosts }: PostsManagerProps) {
     })
 
     return filtered
-  }, [initialPosts, searchTerm, statusFilter, sortBy, sortOrder])
+  }, [posts, searchTerm, statusFilter, sortBy, sortOrder])
 
   // Pagination
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage)
@@ -108,11 +139,11 @@ export function PostsManager({ initialPosts }: PostsManagerProps) {
 
   // Stats
   const stats = {
-    total: initialPosts.length,
-    published: initialPosts.filter(p => p.status === 'published').length,
-    scheduled: initialPosts.filter(p => p.status === 'scheduled').length,
-    draft: initialPosts.filter(p => p.status === 'draft').length,
-    totalViews: initialPosts.reduce((sum, p) => sum + (p.view_count || 0), 0)
+    total: posts.length,
+    published: posts.filter(p => p.status === 'published').length,
+    scheduled: posts.filter(p => p.status === 'scheduled').length,
+    draft: posts.filter(p => p.status === 'draft').length,
+    totalViews: posts.reduce((sum, p) => sum + (p.view_count || 0), 0)
   }
 
   const SortIcon = ({ field }: { field: typeof sortBy }) => {
@@ -201,7 +232,7 @@ export function PostsManager({ initialPosts }: PostsManagerProps) {
         {/* Results count */}
         <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
           Showing {paginatedPosts.length} of {filteredPosts.length} posts
-          {filteredPosts.length !== initialPosts.length && ` (filtered from ${initialPosts.length})`}
+          {filteredPosts.length !== posts.length && ` (filtered from ${posts.length})`}
         </div>
       </div>
 
@@ -306,6 +337,13 @@ export function PostsManager({ initialPosts }: PostsManagerProps) {
                       >
                         Edit
                       </Link>
+                      <button
+                        onClick={() => handleDelete(post)}
+                        disabled={deleting === post.id}
+                        className="text-red-600 dark:text-red-400 hover:underline disabled:opacity-50"
+                      >
+                        {deleting === post.id ? 'Deleting...' : 'Delete'}
+                      </button>
                     </td>
                   </tr>
                 ))
