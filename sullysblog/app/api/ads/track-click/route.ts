@@ -14,19 +14,24 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient()
 
-    // Update click count on the sidebar_ads table directly
-    const { error } = await supabase.rpc('increment_ad_clicks', {
-      ad_uuid: adId
-    })
+    // Fetch current count and increment
+    const { data: ad } = await supabase
+      .from('ads')
+      .select('click_count')
+      .eq('id', adId)
+      .single()
 
-    if (error) {
-      // Silently fail - ad tracking is non-critical
-      console.error('Error tracking click:', error.message)
+    if (ad) {
+      await supabase
+        .from('ads')
+        .update({ click_count: (ad.click_count || 0) + 1 })
+        .eq('id', adId)
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
     // Silently return success - don't crash for non-critical tracking
+    console.error('Error tracking click:', error)
     return NextResponse.json({ success: true })
   }
 }

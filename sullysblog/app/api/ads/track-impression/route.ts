@@ -14,20 +14,24 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient()
 
-    // Update impression count on the sidebar_ads table directly
-    const { error } = await supabase.rpc('increment_ad_impressions', {
-      ad_uuid: adId
-    })
+    // Fetch current count and increment
+    const { data: ad } = await supabase
+      .from('ads')
+      .select('impression_count')
+      .eq('id', adId)
+      .single()
 
-    if (error) {
-      // Silently fail - ad tracking is non-critical
-      // The RPC function may not exist yet
-      console.error('Error tracking impression:', error.message)
+    if (ad) {
+      await supabase
+        .from('ads')
+        .update({ impression_count: (ad.impression_count || 0) + 1 })
+        .eq('id', adId)
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
     // Silently return success - don't crash for non-critical tracking
+    console.error('Error tracking impression:', error)
     return NextResponse.json({ success: true })
   }
 }
