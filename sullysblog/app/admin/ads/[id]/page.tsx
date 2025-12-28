@@ -32,6 +32,7 @@ export default async function EditAdPage({
     is_active: ad.is_active,
     start_date: ad.start_date,
     end_date: ad.end_date,
+    monthly_fee: ad.monthly_fee || 0,
   }
 
   return (

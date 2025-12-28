@@ -14,6 +14,7 @@ export type AdFormData = {
   is_active: boolean
   start_date: string | null
   end_date: string | null
+  monthly_fee: number
 }
 
 interface AdFormProps {
@@ -61,6 +62,7 @@ export function AdForm({ initialData, mode }: AdFormProps) {
     is_active: true,
     start_date: null,
     end_date: null,
+    monthly_fee: 0,
   })
   const [deleting, setDeleting] = useState(false)
 
@@ -386,18 +388,35 @@ export function AdForm({ initialData, mode }: AdFormProps) {
           />
         </div>
 
-        {/* Priority */}
-        <div>
-          <label htmlFor="priority" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Priority (higher = shown first)
-          </label>
-          <input
-            type="number"
-            id="priority"
-            value={formData.priority}
-            onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+        {/* Priority and Monthly Fee */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="priority" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Priority (higher = shown first)
+            </label>
+            <input
+              type="number"
+              id="priority"
+              value={formData.priority}
+              onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 0 })}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label htmlFor="monthly_fee" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Monthly Fee ($)
+            </label>
+            <input
+              type="number"
+              id="monthly_fee"
+              min="0"
+              step="0.01"
+              value={formData.monthly_fee}
+              onChange={(e) => setFormData({ ...formData, monthly_fee: parseFloat(e.target.value) || 0 })}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="0.00"
+            />
+          </div>
         </div>
 
         {/* Is Active */}

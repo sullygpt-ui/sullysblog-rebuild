@@ -81,7 +81,7 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { name, ad_zone, ad_type, content, link_url, priority, is_active, start_date, end_date } = body
+    const { name, ad_zone, ad_type, content, link_url, priority, is_active, start_date, end_date, monthly_fee } = body
 
     // Use admin client for database operations (bypasses RLS)
     const adminClient = createAdminClient()
@@ -98,6 +98,7 @@ export async function PUT(
         is_active,
         start_date: start_date || null,
         end_date: end_date || null,
+        monthly_fee: monthly_fee || 0,
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)

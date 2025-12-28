@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, ad_zone, ad_type, content, link_url, priority, is_active, start_date, end_date } = body
+    const { name, ad_zone, ad_type, content, link_url, priority, is_active, start_date, end_date, monthly_fee } = body
 
     if (!name || !ad_zone || !ad_type) {
       return NextResponse.json({ error: 'Name, ad zone, and ad type are required' }, { status: 400 })
@@ -59,6 +59,7 @@ export async function POST(request: NextRequest) {
         is_active: is_active ?? true,
         start_date: start_date || null,
         end_date: end_date || null,
+        monthly_fee: monthly_fee || 0,
       })
       .select()
       .single()
