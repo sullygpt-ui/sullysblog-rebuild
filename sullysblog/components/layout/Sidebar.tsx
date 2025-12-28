@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { NewsletterForm } from '@/components/newsletter/NewsletterForm'
 import { AdZone } from '@/components/ads/AdZone'
+import { DomainsForSale } from '@/components/domains/DomainsForSale'
 
 export async function Sidebar() {
   const supabase = await createClient()
@@ -33,6 +34,9 @@ export async function Sidebar() {
     <aside className="space-y-8">
       {/* Newsletter Signup */}
       <NewsletterForm />
+
+      {/* Domains for Sale */}
+      <DomainsForSale />
 
       {/* Ad Zone - Top */}
       <AdZone zone="sidebar_top" />

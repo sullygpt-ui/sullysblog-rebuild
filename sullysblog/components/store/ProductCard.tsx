@@ -46,14 +46,14 @@ export function ProductCard({ product }: ProductCardProps) {
       className="group bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300"
     >
       {/* Cover Image */}
-      <div className="w-full aspect-[4/3] bg-gray-100 dark:bg-gray-700 overflow-hidden">
+      <div className="w-full aspect-[4/3] bg-gray-100 dark:bg-gray-700 overflow-hidden flex items-center justify-center">
         {product.cover_image_url ? (
           <Image
             src={product.cover_image_url}
             alt={product.name}
             width={400}
             height={300}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">

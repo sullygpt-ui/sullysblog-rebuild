@@ -6,6 +6,7 @@ import { getProductBySlug } from '@/lib/queries/products'
 import { PriceDisplay } from '@/components/store/PriceDisplay'
 import { BuyButton } from '@/components/store/BuyButton'
 import { ProductJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd'
+import { MarkdownContent } from '@/components/ui/MarkdownContent'
 
 // Dynamic page - products change frequently
 export const dynamic = 'force-dynamic'
@@ -205,11 +206,7 @@ export default async function ProductPage({ params }: Props) {
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
             About This Product
           </h2>
-          <div className="prose prose-lg dark:prose-invert max-w-none">
-            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-              {product.description}
-            </p>
-          </div>
+          <MarkdownContent content={product.description} />
         </div>
       )}
       </div>

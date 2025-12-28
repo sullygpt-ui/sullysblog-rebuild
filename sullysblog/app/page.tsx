@@ -90,8 +90,8 @@ export default async function Home() {
   const { count: sponsorAdsCount } = await supabase
     .from('ads')
     .select('*', { count: 'exact', head: true })
-    .in('zone', ['home_sponsor_1', 'home_sponsor_2', 'home_sponsor_3', 'home_sponsor_4'])
-    .eq('status', 'active')
+    .in('ad_zone', ['home_sponsor_1', 'home_sponsor_2', 'home_sponsor_3', 'home_sponsor_4'])
+    .eq('is_active', true)
 
   const hasSponsorAds = (sponsorAdsCount ?? 0) > 0
 
@@ -120,7 +120,7 @@ export default async function Home() {
             {/* Recent Posts */}
             <section>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Recent Posts</h2>
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Domain Insights</h2>
                 <Link
                   href="/blog"
                   className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
@@ -211,13 +211,15 @@ export default async function Home() {
                       className="bg-gray-800 dark:bg-gray-900 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all group"
                     >
                       {product.cover_image_url ? (
-                        <Image
-                          src={product.cover_image_url}
-                          alt={product.name}
-                          width={400}
-                          height={200}
-                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform"
-                        />
+                        <div className="w-full h-48 bg-gray-700 flex items-center justify-center overflow-hidden">
+                          <Image
+                            src={product.cover_image_url}
+                            alt={product.name}
+                            width={400}
+                            height={200}
+                            className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                          />
+                        </div>
                       ) : (
                         <div className="w-full h-48 bg-gray-700 flex items-center justify-center">
                           <span className="text-gray-400 text-4xl">

@@ -2,7 +2,6 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 
 export type AdFormData = {
   id?: string
@@ -10,7 +9,7 @@ export type AdFormData = {
   ad_zone: string
   ad_type: string
   content: string
-  target_url: string | null
+  link_url: string | null
   priority: number
   is_active: boolean
   start_date: string | null
@@ -57,7 +56,7 @@ export function AdForm({ initialData, mode }: AdFormProps) {
     ad_zone: 'sidebar_top',
     ad_type: 'html',
     content: '',
-    target_url: null,
+    link_url: null,
     priority: 0,
     is_active: true,
     start_date: null,
@@ -158,21 +157,21 @@ export function AdForm({ initialData, mode }: AdFormProps) {
     setError(null)
 
     try {
-      const supabase = createClient()
+      const url = mode === 'create'
+        ? '/api/admin/ads'
+        : `/api/admin/ads/${formData.id}`
 
-      if (mode === 'create') {
-        const { error: insertError } = await supabase
-          .from('ads')
-          .insert([formData])
+      const method = mode === 'create' ? 'POST' : 'PUT'
 
-        if (insertError) throw insertError
-      } else {
-        const { error: updateError } = await supabase
-          .from('ads')
-          .update(formData)
-          .eq('id', formData.id!)
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
 
-        if (updateError) throw updateError
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to save ad')
       }
 
       router.push('/admin/ads')
@@ -372,16 +371,16 @@ export function AdForm({ initialData, mode }: AdFormProps) {
           )}
         </div>
 
-        {/* Target URL */}
+        {/* Link URL */}
         <div>
-          <label htmlFor="target_url" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Target URL (optional)
+          <label htmlFor="link_url" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Link URL (optional)
           </label>
           <input
             type="url"
-            id="target_url"
-            value={formData.target_url || ''}
-            onChange={(e) => setFormData({ ...formData, target_url: e.target.value || null })}
+            id="link_url"
+            value={formData.link_url || ''}
+            onChange={(e) => setFormData({ ...formData, link_url: e.target.value || null })}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="https://example.com"
           />

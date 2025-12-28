@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { unstable_noStore as noStore } from 'next/cache'
 
 export type Ad = {
@@ -23,7 +23,7 @@ export type Ad = {
  */
 export async function getAdsByZone(zone: string): Promise<Ad[]> {
   noStore() // Disable caching for ads - always fetch fresh data
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const now = new Date().toISOString()
 
   // Query ads and filter by date in application code for reliable date handling
@@ -75,36 +75,38 @@ export async function getRandomAdByZone(zone: string): Promise<Ad | null> {
 
 /**
  * Track an ad impression
+ * Note: This is now handled by /api/ads/track-impression
  */
 export async function trackAdImpression(
   adId: string,
   pageUrl: string,
   userAgent?: string
 ): Promise<void> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   await supabase.from('ad_impressions').insert({
     ad_id: adId,
     page_url: pageUrl,
     user_agent: userAgent || null,
-    ip_address: null // Can be populated from headers if needed
+    ip_address: null
   })
 }
 
 /**
  * Track an ad click
+ * Note: This is now handled by /api/ads/track-click
  */
 export async function trackAdClick(
   adId: string,
   pageUrl: string,
   userAgent?: string
 ): Promise<void> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   await supabase.from('ad_clicks').insert({
     ad_id: adId,
     page_url: pageUrl,
     user_agent: userAgent || null,
-    ip_address: null // Can be populated from headers if needed
+    ip_address: null
   })
 }

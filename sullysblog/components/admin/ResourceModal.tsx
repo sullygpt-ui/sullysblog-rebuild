@@ -9,19 +9,28 @@ type ResourceModalProps = {
   onSave: (resource: Resource) => void
 }
 
+// Categories sorted alphabetically by label
 const CATEGORIES = [
-  { value: 'registration', label: 'Registration & Hosting' },
-  { value: 'aftermarket', label: 'Buy / Sell Domains' },
-  { value: 'portfolio', label: 'Portfolio Management' },
-  { value: 'tools', label: 'Domain Tools' },
-  { value: 'blogs', label: 'Blogs & News' },
+  { value: 'appraisal', label: 'Appraisal & Valuation' },
+  { value: 'auctions', label: 'Auctions' },
+  { value: 'blogs', label: 'Blogs' },
   { value: 'books', label: 'Books' },
-  { value: 'podcasts', label: 'Podcasts' },
-  { value: 'newsletters', label: 'Newsletters' },
-  { value: 'forums', label: 'Forums & Communities' },
-  { value: 'conferences', label: 'Conferences & Events' },
-  { value: 'legal', label: 'Legal Resources' },
+  { value: 'brokers', label: 'Brokers' },
+  { value: 'aftermarket', label: 'Buy / Sell Domains' },
   { value: 'business', label: 'Business Tools' },
+  { value: 'conferences', label: 'Conferences & Events' },
+  { value: 'tools', label: 'Domain Tools' },
+  { value: 'escrow', label: 'Escrow Services' },
+  { value: 'expired', label: 'Expired / Drops' },
+  { value: 'forums', label: 'Forums & Communities' },
+  { value: 'hosting', label: 'Hosting & Parking' },
+  { value: 'legal', label: 'Legal Resources' },
+  { value: 'marketplaces', label: 'Marketplaces' },
+  { value: 'news', label: 'News' },
+  { value: 'newsletters', label: 'Newsletters' },
+  { value: 'podcasts', label: 'Podcasts' },
+  { value: 'portfolio', label: 'Portfolio Management' },
+  { value: 'registration', label: 'Registration' },
 ]
 
 export function ResourceModal({ resource, onClose, onSave }: ResourceModalProps) {

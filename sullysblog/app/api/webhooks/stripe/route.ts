@@ -46,6 +46,26 @@ export async function POST(request: NextRequest) {
     const session = event.data.object as Stripe.Checkout.Session
 
     try {
+      // Check if this is a domain purchase
+      const domainId = session.metadata?.domain_id
+      if (domainId) {
+        // Handle domain purchase - mark as inactive
+        const { error: domainError } = await supabase
+          .from('domains_for_sale')
+          .update({ is_active: false, updated_at: new Date().toISOString() })
+          .eq('id', domainId)
+
+        if (domainError) {
+          console.error('Error marking domain as sold:', domainError)
+        } else {
+          console.log('Domain marked as sold:', session.metadata?.domain_name)
+        }
+
+        // Domain purchases don't need order/download access processing
+        return NextResponse.json({ received: true })
+      }
+
+      // Handle product purchase
       const userId = session.metadata?.user_id
       const productId = session.metadata?.product_id
       const productName = session.metadata?.product_name

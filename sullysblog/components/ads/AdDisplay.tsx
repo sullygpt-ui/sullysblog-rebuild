@@ -46,14 +46,31 @@ export function AdDisplay({ ad }: AdDisplayProps) {
 
   const renderAdContent = () => {
     if (ad.ad_type === 'image') {
-      return (
+      const imageElement = (
         <img
           src={ad.content}
           alt={ad.name}
           className="max-w-[300px] h-auto mx-auto"
         />
       )
+
+      // Wrap in link if link_url exists
+      if (ad.link_url) {
+        return (
+          <a
+            href={ad.link_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block"
+          >
+            {imageElement}
+          </a>
+        )
+      }
+
+      return imageElement
     }
+
     // For HTML and Script types
     return (
       <div

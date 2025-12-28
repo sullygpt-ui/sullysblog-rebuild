@@ -8,19 +8,28 @@ export const metadata = {
   description: 'Comprehensive list of domain tools, registrars, hosting, marketplaces, and resources for domain investors.',
 }
 
+// Categories sorted alphabetically by name
 const allCategories = [
-  { id: 'registration', name: 'Registration & Hosting', icon: '🌐' },
-  { id: 'aftermarket', name: 'Buy / Sell Domains', icon: '💰' },
-  { id: 'portfolio', name: 'Portfolio Management', icon: '📊' },
-  { id: 'tools', name: 'Domain Tools', icon: '🔧' },
-  { id: 'blogs', name: 'Blogs & News', icon: '📰' },
+  { id: 'appraisal', name: 'Appraisal & Valuation', icon: '📈' },
+  { id: 'auctions', name: 'Auctions', icon: '🔨' },
+  { id: 'blogs', name: 'Blogs', icon: '✍️' },
   { id: 'books', name: 'Books', icon: '📚' },
-  { id: 'podcasts', name: 'Podcasts', icon: '🎙️' },
-  { id: 'newsletters', name: 'Newsletters', icon: '📧' },
-  { id: 'forums', name: 'Forums & Communities', icon: '💬' },
-  { id: 'conferences', name: 'Conferences & Events', icon: '📅' },
-  { id: 'legal', name: 'Legal Resources', icon: '⚖️' },
+  { id: 'brokers', name: 'Brokers', icon: '🤝' },
+  { id: 'aftermarket', name: 'Buy / Sell Domains', icon: '💰' },
   { id: 'business', name: 'Business Tools', icon: '💼' },
+  { id: 'conferences', name: 'Conferences & Events', icon: '📅' },
+  { id: 'tools', name: 'Domain Tools', icon: '🔧' },
+  { id: 'escrow', name: 'Escrow Services', icon: '🔒' },
+  { id: 'expired', name: 'Expired / Drops', icon: '⏰' },
+  { id: 'forums', name: 'Forums & Communities', icon: '💬' },
+  { id: 'hosting', name: 'Hosting & Parking', icon: '🅿️' },
+  { id: 'legal', name: 'Legal Resources', icon: '⚖️' },
+  { id: 'marketplaces', name: 'Marketplaces', icon: '🏪' },
+  { id: 'news', name: 'News', icon: '📰' },
+  { id: 'newsletters', name: 'Newsletters', icon: '📧' },
+  { id: 'podcasts', name: 'Podcasts', icon: '🎙️' },
+  { id: 'portfolio', name: 'Portfolio Management', icon: '📊' },
+  { id: 'registration', name: 'Registration', icon: '🌐' },
 ]
 
 export default async function DomainResourcesPage() {
@@ -109,10 +118,11 @@ export default async function DomainResourcesPage() {
                   return null
                 }
 
-                // Separate by listing type
-                const featured = categoryData.listings.filter(r => r.listing_type === 'featured')
-                const sponsored = categoryData.listings.filter(r => r.listing_type === 'sponsored')
-                const free = categoryData.listings.filter(r => r.listing_type === 'free')
+                // Separate by listing type and sort alphabetically within each
+                const sortByName = (a: any, b: any) => a.name.localeCompare(b.name)
+                const featured = categoryData.listings.filter(r => r.listing_type === 'featured').sort(sortByName)
+                const sponsored = categoryData.listings.filter(r => r.listing_type === 'sponsored').sort(sortByName)
+                const free = categoryData.listings.filter(r => r.listing_type === 'free').sort(sortByName)
 
                 return (
                   <div key={category.id} id={category.id} className="scroll-mt-20">

@@ -690,6 +690,142 @@ CRON_SECRET=random-secret-string
 
 ---
 
-**Last Updated:** December 26, 2024
-**Status:** ✅ Phase 6 UI/UX Improvements Complete
-**Next:** Deploy to production and test in real environment
+## 🎨 Phase 7: Resource Directory Expansion & Fixes (December 27, 2024)
+
+### Domains for Sale Feature
+- [x] Fixed schema mismatches (`buy_now_url` → `paypal_link`)
+- [x] Changed sidebar title to "Domains at Wholesale"
+- [x] Added 50x50 image upload with crop/zoom functionality
+- [x] Stripe webhook marks domains inactive after purchase
+- [x] Added `react-easy-crop` for image cropping
+- **Files:** `components/domains/DomainsForSale.tsx`, `components/admin/DomainModal.tsx`
+
+### Advertising System Fixes
+- [x] Fixed column name mismatches (`target_url` → `link_url`, `zone` → `ad_zone`)
+- [x] Fixed RLS policy issues by using admin client
+- [x] Fixed ad image upload failures
+- [x] Fixed ads not displaying on homepage
+- [x] Fixed ad hyperlinks not working for image ads
+- [x] Created proper API routes for ad CRUD operations
+- **Files:** `components/ads/AdDisplay.tsx`, `lib/queries/ads.ts`, `app/api/admin/ads/route.ts`
+
+### Ad Expiration Email Notifications
+- [x] Added 14-day warning email template
+- [x] Added 7-day warning email template
+- [x] Created `sendAdExpirationNotifications()` function
+- [x] Updated cron job to check both resources AND ads
+- [x] Daily emails sent at 9:00 AM for expiring ads
+- **Files:** `lib/email/templates.ts`, `lib/email/notifications.ts`, `app/api/cron/check-expirations/route.ts`
+
+### Resource Categories Expansion
+- [x] Added 8 new categories:
+  - Appraisal & Valuation
+  - Auctions
+  - Brokers
+  - Escrow Services
+  - Expired / Drops
+  - Hosting & Parking
+  - Marketplaces
+  - News
+- [x] Total: 20 categories now available
+- **Files:** `app/domain-resources/page.tsx`, `components/admin/ResourceModal.tsx`, `lib/queries/resources.ts`
+
+### Bulk Resource Import
+- [x] Created import script for 89 domain resources
+- [x] Imported 75 new resources (14 already existed)
+- [x] Resources span all 20 categories
+- [x] Added short descriptions for all resources
+- [x] Identified 23 affiliate programs
+- **Script:** `scripts/import-resources.ts`
+
+### Affiliate Programs Identified (23 total)
+| Resource | Commission |
+|----------|------------|
+| Namecheap | 20-35% via Impact/CJ/ShareASale |
+| NameSilo | 10% on first order, 1-year cookie |
+| Dynadot | Varying commission by product |
+| GoDaddy | Via Commission Junction |
+| Sedo | 15% of Sedo sales commission |
+| Escrow.com | Partner program with tracking |
+| Bodis | Referral program |
+| DomCop | Affiliate program |
+| SpamZilla | Affiliate program |
+| Wave/QuickBooks/FreshBooks | Referral programs |
+| Amazon books | Associates program |
+
+### Alphabetical Ordering
+- [x] Categories now sorted alphabetically (A-Z)
+- [x] Resources sorted alphabetically within each listing type
+- [x] Featured listings appear first (alphabetical)
+- [x] Sponsored listings appear second (alphabetical)
+- [x] Free listings appear last (alphabetical)
+- **Files:** All resource-related components updated
+
+### Files Created/Modified
+| File | Change |
+|------|--------|
+| `scripts/import-resources.ts` | NEW - Bulk import script |
+| `lib/email/templates.ts` | Added ad expiration templates |
+| `lib/email/notifications.ts` | Added ad expiration checks |
+| `app/api/cron/check-expirations/route.ts` | Updated for ads |
+| `app/domain-resources/page.tsx` | Alphabetical categories |
+| `components/admin/ResourceModal.tsx` | 20 categories, alphabetical |
+| `components/admin/ResourceRow.tsx` | Updated category labels |
+| `components/admin/ResourcesManager.tsx` | Updated category filter |
+| `lib/queries/resources.ts` | Alphabetical sorting |
+
+---
+
+## 📊 Resource Directory Statistics
+
+### Categories (20 total, alphabetical)
+1. Appraisal & Valuation
+2. Auctions
+3. Blogs
+4. Books
+5. Brokers
+6. Buy / Sell Domains
+7. Business Tools
+8. Conferences & Events
+9. Domain Tools
+10. Escrow Services
+11. Expired / Drops
+12. Forums & Communities
+13. Hosting & Parking
+14. Legal Resources
+15. Marketplaces
+16. News
+17. Newsletters
+18. Podcasts
+19. Portfolio Management
+20. Registration
+
+### Resources by Category
+- Registration: 8 resources
+- Aftermarket: 5 resources
+- Appraisal: 7 resources
+- Auctions: 5 resources
+- Brokers: 6 resources
+- Escrow: 2 resources
+- Expired/Drops: 5 resources
+- Hosting/Parking: 4 resources
+- Marketplaces: 4 resources
+- News: 5 resources
+- Portfolio: 3 resources
+- Tools: 7 resources
+- Blogs: 3 resources
+- Books: 4 resources
+- Podcasts: 3 resources
+- Newsletters: 3 resources
+- Forums: 3 resources
+- Conferences: 3 resources
+- Legal: 3 resources
+- Business: 6 resources
+
+**Total: 89 resources**
+
+---
+
+**Last Updated:** December 27, 2024
+**Status:** ✅ Phase 7 Resource Directory Expansion Complete
+**Next:** Add affiliate links to resources, upgrade key resources to sponsored/featured

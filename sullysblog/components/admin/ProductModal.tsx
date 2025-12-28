@@ -29,9 +29,12 @@ export function ProductModal({ product, allProducts, onClose, onSave }: ProductM
   const [loading, setLoading] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadingFile, setUploadingFile] = useState(false)
+  const [uploadingDescImage, setUploadingDescImage] = useState(false)
   const [error, setError] = useState('')
   const imageInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const descImageInputRef = useRef<HTMLInputElement>(null)
+  const descTextareaRef = useRef<HTMLTextAreaElement>(null)
 
   const [formData, setFormData] = useState({
     name: product?.name || '',
@@ -132,6 +135,59 @@ export function ProductModal({ product, allProducts, onClose, onSave }: ProductM
 
   const removeFile = (index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleDescImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingDescImage(true)
+    setError('')
+
+    try {
+      const formDataUpload = new FormData()
+      formDataUpload.append('file', file)
+
+      const response = await fetch('/api/admin/upload-description-image', {
+        method: 'POST',
+        body: formDataUpload
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to upload image')
+      }
+
+      const { url, fileName } = await response.json()
+
+      // Insert markdown image syntax at cursor position or at end
+      const textarea = descTextareaRef.current
+      const imageMarkdown = `\n![${fileName}](${url})\n`
+
+      if (textarea) {
+        const start = textarea.selectionStart
+        const end = textarea.selectionEnd
+        const currentValue = formData.description
+        const newValue = currentValue.substring(0, start) + imageMarkdown + currentValue.substring(end)
+        setFormData(prev => ({ ...prev, description: newValue }))
+
+        // Restore cursor position after the inserted text
+        setTimeout(() => {
+          textarea.focus()
+          textarea.selectionStart = textarea.selectionEnd = start + imageMarkdown.length
+        }, 0)
+      } else {
+        // Fallback: append to end
+        setFormData(prev => ({ ...prev, description: prev.description + imageMarkdown }))
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to upload image')
+    } finally {
+      setUploadingDescImage(false)
+      if (descImageInputRef.current) {
+        descImageInputRef.current.value = ''
+      }
+    }
   }
 
   const toggleBundleItem = (productId: string) => {
@@ -282,11 +338,36 @@ export function ProductModal({ product, allProducts, onClose, onSave }: ProductM
                 Full Description
               </label>
               <textarea
+                ref={descTextareaRef}
                 value={formData.description}
                 onChange={(e) => handleChange('description', e.target.value)}
-                rows={4}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                rows={6}
+                placeholder="Supports markdown including images: ![alt text](image-url)"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 font-mono text-sm"
               />
+              <div className="mt-2 flex items-center gap-3">
+                <input
+                  ref={descImageInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/gif,image/webp"
+                  onChange={handleDescImageUpload}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => descImageInputRef.current?.click()}
+                  disabled={uploadingDescImage}
+                  className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  {uploadingDescImage ? 'Uploading...' : 'Insert Image'}
+                </button>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  Upload images for reviews, testimonials, etc.
+                </span>
+              </div>
             </div>
           </div>
 

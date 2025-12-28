@@ -230,6 +230,124 @@ export function getDowngradedToFree(data: EmailData) {
   }
 }
 
+// Ad Expiration Templates
+type AdEmailData = {
+  adName: string
+  adZone: string
+  expiryDate: string
+  daysRemaining: number
+  adminUrl: string
+}
+
+export function getAdExpirationWarning14Days(data: AdEmailData) {
+  return {
+    subject: `⏰ Ad Expiring in 14 Days: ${data.adName}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+            .warning-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; }
+            .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>⏰ Ad Expiring in 14 Days</h1>
+            </div>
+            <div class="content">
+              <p>Hello,</p>
+
+              <div class="warning-box">
+                The ad <strong>"${data.adName}"</strong> will expire in <strong>${data.daysRemaining} days</strong> on <strong>${data.expiryDate}</strong>.
+              </div>
+
+              <p><strong>Ad Details:</strong></p>
+              <ul>
+                <li>Name: ${data.adName}</li>
+                <li>Zone: ${data.adZone}</li>
+                <li>Expiry Date: ${data.expiryDate}</li>
+              </ul>
+
+              <p>After expiration, this ad will automatically stop displaying on your site. Please renew or update the ad if you want it to continue running.</p>
+
+              <a href="${data.adminUrl}" class="button">Manage Ads</a>
+
+              <p>Best regards,<br>SullysBlog</p>
+            </div>
+            <div class="footer">
+              <p>This is an automated notification from SullysBlog.com</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `
+  }
+}
+
+export function getAdExpirationWarning7Days(data: AdEmailData) {
+  return {
+    subject: `🚨 URGENT: Ad Expiring in 7 Days: ${data.adName}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+            .urgent-box { background: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; margin: 20px 0; }
+            .button { display: inline-block; background: #dc3545; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🚨 Ad Expiring in 7 Days</h1>
+            </div>
+            <div class="content">
+              <p>Hello,</p>
+
+              <div class="urgent-box">
+                <strong>FINAL REMINDER:</strong> The ad <strong>"${data.adName}"</strong> expires in <strong>${data.daysRemaining} days</strong> on <strong>${data.expiryDate}</strong>.
+              </div>
+
+              <p><strong>Ad Details:</strong></p>
+              <ul>
+                <li>Name: ${data.adName}</li>
+                <li>Zone: ${data.adZone}</li>
+                <li>Expiry Date: ${data.expiryDate}</li>
+              </ul>
+
+              <p><strong>What happens next:</strong></p>
+              <ul>
+                <li>After ${data.expiryDate}, this ad will stop displaying</li>
+                <li>The ad will remain in your admin panel for reference</li>
+                <li>You can extend the end date anytime to continue running the ad</li>
+              </ul>
+
+              <a href="${data.adminUrl}" class="button">Renew Ad Now</a>
+
+              <p>Best regards,<br>SullysBlog</p>
+            </div>
+            <div class="footer">
+              <p>This is an automated notification from SullysBlog.com</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `
+  }
+}
+
 export function getRenewalConfirmation(data: EmailData) {
   return {
     subject: `✅ Sponsorship Renewed: ${data.resourceName}`,

@@ -65,6 +65,57 @@ export async function DELETE(
   }
 }
 
+// PUT - Update an ad
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const supabase = await createClient()
+    const { id } = await params
+
+    // Check auth
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const { name, ad_zone, ad_type, content, link_url, priority, is_active, start_date, end_date } = body
+
+    // Use admin client for database operations (bypasses RLS)
+    const adminClient = createAdminClient()
+
+    const { data, error } = await adminClient
+      .from('ads')
+      .update({
+        name,
+        ad_zone,
+        ad_type,
+        content,
+        link_url,
+        priority: priority || 0,
+        is_active,
+        start_date: start_date || null,
+        end_date: end_date || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating ad:', error)
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    }
+
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('Error in PUT /api/admin/ads/[id]:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
 // PATCH - Archive/deactivate an ad
 export async function PATCH(
   request: NextRequest,

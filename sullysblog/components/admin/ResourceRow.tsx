@@ -8,19 +8,28 @@ type ResourceRowProps = {
   onDelete: () => void
 }
 
+// Category labels for display (alphabetical order)
 const CATEGORY_LABELS: Record<string, string> = {
-  'registration': 'Registration',
-  'aftermarket': 'Aftermarket',
-  'portfolio': 'Portfolio',
-  'tools': 'Tools',
+  'appraisal': 'Appraisal',
+  'auctions': 'Auctions',
   'blogs': 'Blogs',
   'books': 'Books',
-  'podcasts': 'Podcasts',
-  'newsletters': 'Newsletters',
-  'forums': 'Forums',
-  'conferences': 'Conferences',
-  'legal': 'Legal',
+  'brokers': 'Brokers',
+  'aftermarket': 'Buy/Sell',
   'business': 'Business',
+  'conferences': 'Conferences',
+  'tools': 'Domain Tools',
+  'escrow': 'Escrow',
+  'expired': 'Expired/Drops',
+  'forums': 'Forums',
+  'hosting': 'Hosting/Parking',
+  'legal': 'Legal',
+  'marketplaces': 'Marketplaces',
+  'news': 'News',
+  'newsletters': 'Newsletters',
+  'podcasts': 'Podcasts',
+  'portfolio': 'Portfolio',
+  'registration': 'Registration',
 }
 
 export function ResourceRow({ resource, onEdit, onDelete }: ResourceRowProps) {

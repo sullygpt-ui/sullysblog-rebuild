@@ -5,6 +5,8 @@ import {
   getExpirationWarning3Days,
   getGracePeriodStarted,
   getDowngradedToFree,
+  getAdExpirationWarning14Days,
+  getAdExpirationWarning7Days,
 } from './templates'
 
 // Server-side client with service key
@@ -157,4 +159,131 @@ export async function sendExpirationNotifications(): Promise<NotificationResult>
     console.error('Error in sendExpirationNotifications:', error)
     return result
   }
+}
+
+/**
+ * Send ad expiration notifications
+ * Sends emails 14 days and 7 days before ads expire
+ */
+export async function sendAdExpirationNotifications(): Promise<NotificationResult> {
+  const result: NotificationResult = {
+    sent: 0,
+    errors: 0,
+    details: []
+  }
+
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@sullysblog.com'
+  const adminUrl = process.env.NEXT_PUBLIC_SITE_URL
+    ? `${process.env.NEXT_PUBLIC_SITE_URL}/admin/ads`
+    : 'https://sullysblog.com/admin/ads'
+
+  try {
+    // Get all active ads with end dates
+    const { data: ads, error } = await supabase
+      .from('ads')
+      .select('*')
+      .eq('is_active', true)
+      .not('end_date', 'is', null)
+
+    if (error) {
+      console.error('Error fetching ads:', error)
+      return result
+    }
+
+    if (!ads || ads.length === 0) {
+      console.log('No active ads with expiration dates found')
+      return result
+    }
+
+    const now = new Date()
+    now.setHours(0, 0, 0, 0) // Start of today
+
+    for (const ad of ads) {
+      const endDate = new Date(ad.end_date)
+      endDate.setHours(0, 0, 0, 0) // Start of end date
+
+      const diffTime = endDate.getTime() - now.getTime()
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+      const emailData = {
+        adName: ad.name,
+        adZone: ad.ad_zone,
+        expiryDate: endDate.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }),
+        daysRemaining: diffDays,
+        adminUrl
+      }
+
+      let shouldSend = false
+      let emailTemplate: any = null
+      let notificationType = ''
+
+      // Check if we should send a notification
+      if (diffDays === 14) {
+        // 14 days before expiration
+        emailTemplate = getAdExpirationWarning14Days(emailData)
+        shouldSend = true
+        notificationType = '14-day warning'
+      } else if (diffDays === 7) {
+        // 7 days before expiration
+        emailTemplate = getAdExpirationWarning7Days(emailData)
+        shouldSend = true
+        notificationType = '7-day warning'
+      }
+
+      if (shouldSend && emailTemplate) {
+        const emailResult = await sendEmail({
+          to: adminEmail,
+          subject: emailTemplate.subject,
+          html: emailTemplate.html
+        })
+
+        if (emailResult.success) {
+          result.sent++
+          result.details.push({
+            resource: ad.name,
+            type: notificationType,
+            success: true
+          })
+          console.log(`✅ Sent ${notificationType} for ad: ${ad.name}`)
+        } else {
+          result.errors++
+          result.details.push({
+            resource: ad.name,
+            type: notificationType,
+            success: false,
+            error: emailResult.error
+          })
+          console.error(`❌ Failed to send ${notificationType} for ad: ${ad.name}:`, emailResult.error)
+        }
+      }
+    }
+
+    console.log(`\n📊 Ad Notification Summary:`)
+    console.log(`   ✅ Sent: ${result.sent}`)
+    console.log(`   ❌ Errors: ${result.errors}`)
+
+    return result
+  } catch (error) {
+    console.error('Error in sendAdExpirationNotifications:', error)
+    return result
+  }
+}
+
+/**
+ * Send all expiration notifications (resources + ads)
+ */
+export async function sendAllExpirationNotifications(): Promise<{
+  resources: NotificationResult
+  ads: NotificationResult
+}> {
+  const [resources, ads] = await Promise.all([
+    sendExpirationNotifications(),
+    sendAdExpirationNotifications()
+  ])
+
+  return { resources, ads }
 }

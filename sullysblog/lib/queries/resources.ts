@@ -29,19 +29,28 @@ export type ResourcesByCategory = {
   }
 }
 
+// Categories (lookup - order doesn't matter here, display order is in page components)
 const CATEGORY_INFO: Record<string, { label: string; icon: string }> = {
-  'registration': { label: 'Registration & Hosting', icon: '🌐' },
-  'aftermarket': { label: 'Buy / Sell Domains', icon: '💰' },
-  'portfolio': { label: 'Portfolio Management', icon: '📊' },
-  'tools': { label: 'Domain Tools', icon: '🔧' },
-  'blogs': { label: 'Blogs & News', icon: '📰' },
+  'appraisal': { label: 'Appraisal & Valuation', icon: '📈' },
+  'auctions': { label: 'Auctions', icon: '🔨' },
+  'blogs': { label: 'Blogs', icon: '✍️' },
   'books': { label: 'Books', icon: '📚' },
-  'podcasts': { label: 'Podcasts', icon: '🎙️' },
-  'newsletters': { label: 'Newsletters', icon: '📧' },
-  'forums': { label: 'Forums & Communities', icon: '💬' },
-  'conferences': { label: 'Conferences & Events', icon: '📅' },
-  'legal': { label: 'Legal Resources', icon: '⚖️' },
+  'brokers': { label: 'Brokers', icon: '🤝' },
+  'aftermarket': { label: 'Buy / Sell Domains', icon: '💰' },
   'business': { label: 'Business Tools', icon: '💼' },
+  'conferences': { label: 'Conferences & Events', icon: '📅' },
+  'tools': { label: 'Domain Tools', icon: '🔧' },
+  'escrow': { label: 'Escrow Services', icon: '🔒' },
+  'expired': { label: 'Expired / Drops', icon: '⏰' },
+  'forums': { label: 'Forums & Communities', icon: '💬' },
+  'hosting': { label: 'Hosting & Parking', icon: '🅿️' },
+  'legal': { label: 'Legal Resources', icon: '⚖️' },
+  'marketplaces': { label: 'Marketplaces', icon: '🏪' },
+  'news': { label: 'News', icon: '📰' },
+  'newsletters': { label: 'Newsletters', icon: '📧' },
+  'podcasts': { label: 'Podcasts', icon: '🎙️' },
+  'portfolio': { label: 'Portfolio Management', icon: '📊' },
+  'registration': { label: 'Registration', icon: '🌐' },
 }
 
 /**
@@ -55,8 +64,7 @@ export async function getResourcesByCategory(): Promise<ResourcesByCategory> {
     .select('*')
     .in('status', ['active', 'grace_period'])
     .order('listing_type', { ascending: false }) // featured > sponsored > free
-    .order('display_order', { ascending: true })
-    .order('name', { ascending: true })
+    .order('name', { ascending: true }) // alphabetical within each listing type
 
   if (error) {
     console.error('Error fetching resources:', error)
@@ -153,9 +161,8 @@ export async function getAllResources(): Promise<Resource[]> {
     .from('resources')
     .select('*')
     .order('category', { ascending: true })
-    .order('listing_type', { ascending: false })
-    .order('display_order', { ascending: true })
-    .order('name', { ascending: true })
+    .order('listing_type', { ascending: false }) // featured > sponsored > free
+    .order('name', { ascending: true }) // alphabetical within each
 
   if (error) {
     console.error('Error fetching all resources:', error)

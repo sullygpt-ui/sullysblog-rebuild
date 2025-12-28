@@ -27,7 +27,7 @@ export default async function EditAdPage({
     ad_zone: ad.ad_zone,
     ad_type: ad.ad_type,
     content: ad.content,
-    target_url: ad.target_url,
+    link_url: ad.link_url,
     priority: ad.priority,
     is_active: ad.is_active,
     start_date: ad.start_date,
