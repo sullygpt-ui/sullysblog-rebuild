@@ -21,6 +21,12 @@ export default async function EditAdPage({
     notFound()
   }
 
+  // Convert ISO dates to YYYY-MM-DD format for HTML date inputs
+  const formatDateForInput = (isoDate: string | null): string | null => {
+    if (!isoDate) return null
+    return isoDate.split('T')[0]
+  }
+
   const formData: AdFormData = {
     id: ad.id,
     name: ad.name,
@@ -30,8 +36,8 @@ export default async function EditAdPage({
     link_url: ad.link_url,
     priority: ad.priority,
     is_active: ad.is_active,
-    start_date: ad.start_date,
-    end_date: ad.end_date,
+    start_date: formatDateForInput(ad.start_date),
+    end_date: formatDateForInput(ad.end_date),
     monthly_fee: ad.monthly_fee || 0,
   }
 
