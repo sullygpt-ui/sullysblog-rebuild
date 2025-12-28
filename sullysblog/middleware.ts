@@ -2,6 +2,18 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  // Handle WordPress-style RSS feed URLs
+  const feedParam = request.nextUrl.searchParams.get('feed')
+  if (feedParam === 'rss2' || feedParam === 'rss') {
+    const feedUrl = new URL('/api/feed', request.url)
+    // Pass through any category filter
+    const cat = request.nextUrl.searchParams.get('cat')
+    if (cat) {
+      feedUrl.searchParams.set('cat', cat)
+    }
+    return NextResponse.rewrite(feedUrl)
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   })
