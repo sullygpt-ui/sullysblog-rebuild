@@ -3118,8 +3118,8 @@
             "permanent": true
       },
       {
-            "source": "/category/domians/",
-            "destination": "/category/domians",
+            "source": "/category/domains/",
+            "destination": "/category/domains",
             "permanent": true
       },
       {
