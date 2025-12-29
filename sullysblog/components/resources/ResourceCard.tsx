@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Resource } from '@/lib/queries/resources'
 import Link from 'next/link'
 
@@ -10,6 +10,26 @@ type ResourceCardProps = {
 
 export function ResourceCard({ resource }: ResourceCardProps) {
   const [imageError, setImageError] = useState(false)
+
+  // Track impression when card is displayed
+  useEffect(() => {
+    const trackImpression = async () => {
+      try {
+        await fetch('/api/resources/track-impression', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            resourceId: resource.id,
+            pageUrl: window.location.pathname
+          })
+        })
+      } catch (error) {
+        console.error('Failed to track resource impression:', error)
+      }
+    }
+
+    trackImpression()
+  }, [resource.id])
 
   const handleClick = async () => {
     try {
