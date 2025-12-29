@@ -3,7 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function POST(request: NextRequest) {
   try {
-    const { adId } = await request.json()
+    const { adId, pageUrl } = await request.json()
 
     if (!adId) {
       return NextResponse.json(
@@ -14,18 +14,19 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient()
 
-    // Fetch current count and increment
-    const { data: ad } = await supabase
-      .from('ads')
-      .select('click_count')
-      .eq('id', adId)
-      .single()
+    // Insert click record into ad_clicks table
+    const { error } = await supabase
+      .from('ad_clicks')
+      .insert({
+        ad_id: adId,
+        page_url: pageUrl || null,
+        user_agent: request.headers.get('user-agent')?.substring(0, 255) || null,
+        ip_address: request.headers.get('x-forwarded-for')?.split(',')[0] ||
+                    request.headers.get('x-real-ip') || null
+      })
 
-    if (ad) {
-      await supabase
-        .from('ads')
-        .update({ click_count: (ad.click_count || 0) + 1 })
-        .eq('id', adId)
+    if (error) {
+      console.error('Error inserting ad click:', error)
     }
 
     return NextResponse.json({ success: true })
