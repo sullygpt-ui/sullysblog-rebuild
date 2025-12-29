@@ -3760,16 +3760,6 @@
     "permanent": true
   },
   {
-    "source": "/category/:slug/feed/",
-    "destination": "/category/:slug",
-    "permanent": true
-  },
-  {
-    "source": "/category/:slug/feed",
-    "destination": "/category/:slug",
-    "permanent": true
-  },
-  {
     "source": "/page/:path*/",
     "destination": "/:path*",
     "permanent": true
