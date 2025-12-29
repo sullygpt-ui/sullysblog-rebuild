@@ -103,7 +103,7 @@ export default async function Home() {
       {hasSponsorAds && (
         <div className="bg-gray-100 dark:bg-gray-900 py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
               <AdZone zone="home_sponsor_1" />
               <AdZone zone="home_sponsor_2" />
               <AdZone zone="home_sponsor_3" />
