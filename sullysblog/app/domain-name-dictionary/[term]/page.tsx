@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { getTermBySlug, getAllTerms } from '@/lib/queries/dictionary'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { StickySidebar } from '@/components/layout/StickySidebar'
+import { AdZone } from '@/components/ads/AdZone'
+import { createClient } from '@/lib/supabase/server'
 
 type Props = {
   params: Promise<{ term: string }>
@@ -59,8 +61,33 @@ export default async function TermPage({ params }: Props) {
     .sort(() => Math.random() - 0.5)
     .slice(0, 6)
 
+  // Check if there are any active sponsor ads
+  const supabase = await createClient()
+  const { count: sponsorAdsCount } = await supabase
+    .from('ads')
+    .select('*', { count: 'exact', head: true })
+    .in('ad_zone', ['home_sponsor_1', 'home_sponsor_2', 'home_sponsor_3', 'home_sponsor_4'])
+    .eq('is_active', true)
+
+  const hasSponsorAds = (sponsorAdsCount ?? 0) > 0
+
   return (
-    <div className="max-w-7xl mx-auto">
+    <>
+      {/* Sponsor Ads Section */}
+      {hasSponsorAds && (
+        <div className="bg-gray-100 dark:bg-gray-900 py-8 mb-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+              <AdZone zone="home_sponsor_1" />
+              <AdZone zone="home_sponsor_2" />
+              <AdZone zone="home_sponsor_3" />
+              <AdZone zone="home_sponsor_4" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="max-w-7xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2">
@@ -170,5 +197,6 @@ export default async function TermPage({ params }: Props) {
         </div>
       </div>
     </div>
+    </>
   )
 }
