@@ -11,6 +11,7 @@ import { SocialShare } from '@/components/blog/SocialShare'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { StickySidebar } from '@/components/layout/StickySidebar'
 import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd'
+import { AdZone } from '@/components/ads/AdZone'
 
 // Reserved routes that should not be caught by [slug]
 const RESERVED_ROUTES = ['test', 'blog', 'domain-name-dictionary', 'api', 'admin']
@@ -115,6 +116,15 @@ export default async function PostPage({ params }: Props) {
     getCommentsByPostId(post.id)
   ])
 
+  // Check if there are any active sponsor ads
+  const { count: sponsorAdsCount } = await supabase
+    .from('ads')
+    .select('*', { count: 'exact', head: true })
+    .in('ad_zone', ['home_sponsor_1', 'home_sponsor_2', 'home_sponsor_3', 'home_sponsor_4'])
+    .eq('is_active', true)
+
+  const hasSponsorAds = (sponsorAdsCount ?? 0) > 0
+
   const baseUrl = 'https://sullysblog.com'
 
   return (
@@ -137,6 +147,19 @@ export default async function PostPage({ params }: Props) {
           { name: post.title, url: `${baseUrl}/${post.slug}` },
         ]}
       />
+      {/* Sponsor Ads Section */}
+      {hasSponsorAds && (
+        <div className="bg-gray-100 dark:bg-gray-900 py-8 -mx-4 px-4 mb-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <AdZone zone="home_sponsor_1" />
+              <AdZone zone="home_sponsor_2" />
+              <AdZone zone="home_sponsor_3" />
+              <AdZone zone="home_sponsor_4" />
+            </div>
+          </div>
+        </div>
+      )}
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
