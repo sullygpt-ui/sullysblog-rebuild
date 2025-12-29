@@ -36,6 +36,7 @@ export function RichTextEditor({ content, onChange, placeholder, postId }: RichT
       }),
     ],
     content,
+    immediatelyRender: false,
     onUpdate: ({ editor }) => {
       const html = editor.getHTML()
       setHtmlContent(html)
@@ -43,7 +44,7 @@ export function RichTextEditor({ content, onChange, placeholder, postId }: RichT
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl mx-auto focus:outline-none min-h-[400px] px-4 py-2',
+        class: 'prose prose-lg dark:prose-invert max-w-none focus:outline-none min-h-[400px] px-4 py-3',
       },
     },
   })
@@ -118,7 +119,7 @@ export function RichTextEditor({ content, onChange, placeholder, postId }: RichT
   }
 
   return (
-    <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden bg-white dark:bg-gray-900">
+    <div className="tiptap-editor border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden bg-white dark:bg-gray-900">
       {/* Toolbar */}
       <div className="border-b border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 p-2 flex flex-wrap gap-1">
         {/* View Toggle */}

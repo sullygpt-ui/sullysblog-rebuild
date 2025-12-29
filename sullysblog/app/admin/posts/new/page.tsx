@@ -1,9 +1,9 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { PostForm } from '@/components/admin/PostForm'
 import Link from 'next/link'
 
 export default async function NewPostPage() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Fetch categories for the dropdown
   const { data: categories } = await supabase

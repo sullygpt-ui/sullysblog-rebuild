@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest) {
   try {
     // Check authentication
     const supabase = await createClient()
@@ -15,7 +12,6 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { id } = await params
     const body = await request.json()
     const {
       title,
@@ -42,12 +38,11 @@ export async function PUT(
     // Use admin client to bypass RLS
     const adminClient = createAdminClient()
 
-    // Check for duplicate slug (excluding current post)
+    // Check for duplicate slug
     const { data: existingPost } = await adminClient
       .from('posts')
       .select('id')
       .eq('slug', slug)
-      .neq('id', id)
       .single()
 
     if (existingPost) {
@@ -57,10 +52,26 @@ export async function PUT(
       )
     }
 
-    // Update the post
-    const { data: post, error: updateError } = await adminClient
+    // Get the default author_id from existing posts (for single-author blog)
+    const { data: existingAuthor } = await adminClient
       .from('posts')
-      .update({
+      .select('author_id')
+      .limit(1)
+      .single()
+
+    const authorId = existingAuthor?.author_id
+
+    if (!authorId) {
+      return NextResponse.json(
+        { error: 'No author found. Please create an author first.' },
+        { status: 400 }
+      )
+    }
+
+    // Create the post
+    const { data: post, error: createError } = await adminClient
+      .from('posts')
+      .insert({
         title,
         slug,
         content,
@@ -71,61 +82,25 @@ export async function PUT(
         published_at: published_at || null,
         seo_title: meta_title || null,
         seo_description: meta_description || null,
-        updated_at: new Date().toISOString()
+        author_id: authorId
       })
-      .eq('id', id)
       .select()
       .single()
 
-    if (updateError) {
-      console.error('Error updating post:', updateError)
+    if (createError) {
+      console.error('Error creating post:', createError)
       return NextResponse.json(
-        { error: updateError.message },
+        { error: createError.message },
         { status: 500 }
       )
     }
 
     return NextResponse.json({ success: true, post })
   } catch (error) {
-    console.error('Error in PUT /api/admin/posts/[id]:', error)
+    console.error('Error in POST /api/admin/posts:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     )
-  }
-}
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const supabase = await createClient()
-    const { id } = await params
-
-    // Check auth
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Use admin client for database operations
-    const adminClient = createAdminClient()
-
-    // Delete the post
-    const { error } = await adminClient
-      .from('posts')
-      .delete()
-      .eq('id', id)
-
-    if (error) {
-      console.error('Error deleting post:', error)
-      return NextResponse.json({ error: error.message }, { status: 400 })
-    }
-
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error in DELETE /api/admin/posts/[id]:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

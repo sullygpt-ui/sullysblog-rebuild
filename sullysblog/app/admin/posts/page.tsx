@@ -1,11 +1,11 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import Link from 'next/link'
 import { PostsManager } from '@/components/admin/PostsManager'
 
 export default async function PostsPage() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
-  // Fetch all posts with categories
+  // Fetch all posts with categories (including drafts and scheduled)
   const { data: posts } = await supabase
     .from('posts')
     .select(`
@@ -18,7 +18,7 @@ export default async function PostsPage() {
       created_at,
       category:categories(name)
     `)
-    .order('published_at', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
 
   return (
     <div className="space-y-6">

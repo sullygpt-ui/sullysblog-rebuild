@@ -7,6 +7,7 @@ import { PostHeader } from '@/components/blog/PostHeader'
 import { PostContent } from '@/components/blog/PostContent'
 import { RelatedPosts } from '@/components/blog/RelatedPosts'
 import { CommentList } from '@/components/blog/CommentList'
+import { SocialShare } from '@/components/blog/SocialShare'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { StickySidebar } from '@/components/layout/StickySidebar'
 import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd'
@@ -145,6 +146,16 @@ export default async function PostPage({ params }: Props) {
 
           {/* Post Content */}
           <PostContent content={post.content} />
+
+          {/* Social Share */}
+          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <SocialShare
+              url={`${baseUrl}/${post.slug}`}
+              title={post.title}
+              description={post.excerpt || undefined}
+              imageUrl={post.featured_image_url || undefined}
+            />
+          </div>
 
           {/* Related Posts */}
           {relatedPosts.length > 0 && <RelatedPosts posts={relatedPosts} />}

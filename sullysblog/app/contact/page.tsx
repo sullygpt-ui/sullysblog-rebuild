@@ -1,31 +1,44 @@
 import { Metadata } from 'next'
 import { ContactForm } from './ContactForm'
-import Link from 'next/link'
+import { getPageBySlug } from '@/lib/queries/pages'
 
-export const metadata: Metadata = {
-  title: 'Contact - SullysBlog.com',
-  description: 'Get in touch with Mike Sullivan. Questions about domain investing, partnership inquiries, or just want to say hello.',
-  openGraph: {
-    title: 'Contact - SullysBlog.com',
-    description: 'Get in touch with Mike Sullivan',
-    url: 'https://sullysblog.com/contact',
-    type: 'website'
-  },
-  alternates: {
-    canonical: 'https://sullysblog.com/contact'
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getPageBySlug('contact')
+
+  return {
+    title: `${page?.title || 'Contact'} - SullysBlog.com`,
+    description: page?.meta_description || 'Get in touch with Mike Sullivan. Questions about domain investing, partnership inquiries, or just want to say hello.',
+    openGraph: {
+      title: `${page?.title || 'Contact'} - SullysBlog.com`,
+      description: page?.meta_description || 'Get in touch with Mike Sullivan',
+      url: 'https://sullysblog.com/contact',
+      type: 'website'
+    },
+    alternates: {
+      canonical: 'https://sullysblog.com/contact'
+    }
   }
 }
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const page = await getPageBySlug('contact')
+
   return (
     <div className="max-w-3xl mx-auto">
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          Get In Touch
+          {page?.title || 'Get In Touch'}
         </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300">
-          Have a question about domain investing? Want to collaborate? Just want to say hello? I'd love to hear from you.
-        </p>
+        {page?.content ? (
+          <div
+            className="prose prose-lg dark:prose-invert max-w-none prose-p:mb-4 text-gray-600 dark:text-gray-300"
+            dangerouslySetInnerHTML={{ __html: page.content }}
+          />
+        ) : (
+          <p className="text-xl text-gray-600 dark:text-gray-300">
+            Have a question about domain investing? Want to collaborate? Just want to say hello? I'd love to hear from you.
+          </p>
+        )}
       </div>
 
       {/* Social Links */}

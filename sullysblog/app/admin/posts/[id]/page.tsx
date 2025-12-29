@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { PostForm, type PostFormData } from '@/components/admin/PostForm'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -9,7 +9,7 @@ export default async function EditPostPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Fetch the post
   const { data: post } = await supabase
@@ -38,9 +38,9 @@ export default async function EditPostPage({
     category_id: post.category_id,
     status: post.status,
     published_at: post.published_at,
-    meta_title: post.meta_title,
-    meta_description: post.meta_description,
-    meta_keywords: post.meta_keywords,
+    meta_title: post.seo_title,
+    meta_description: post.seo_description,
+    meta_keywords: null, // Column doesn't exist in DB
   }
 
   return (

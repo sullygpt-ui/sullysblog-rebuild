@@ -136,21 +136,19 @@ export function PostForm({ initialData, mode, categories }: PostFormProps) {
     setError(null)
 
     try {
-      const supabase = createClient()
+      const url = mode === 'create' ? '/api/admin/posts' : `/api/admin/posts/${formData.id}`
+      const method = mode === 'create' ? 'POST' : 'PUT'
 
-      if (mode === 'create') {
-        const { error: insertError } = await supabase
-          .from('posts')
-          .insert([formData])
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
 
-        if (insertError) throw insertError
-      } else {
-        const { error: updateError } = await supabase
-          .from('posts')
-          .update(formData)
-          .eq('id', formData.id!)
+      const result = await response.json()
 
-        if (updateError) throw updateError
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to save post')
       }
 
       router.push('/admin/posts')
@@ -340,25 +338,110 @@ export function PostForm({ initialData, mode, categories }: PostFormProps) {
         {/* Published/Scheduled Date */}
         {(formData.status === 'published' || formData.status === 'scheduled') && (
           <div>
-            <label htmlFor="published_at" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {formData.status === 'scheduled' ? 'Scheduled For' : 'Published Date'}
             </label>
-            <input
-              type="datetime-local"
-              id="published_at"
-              value={formData.published_at ? new Date(formData.published_at).toISOString().slice(0, 16) : ''}
-              onChange={(e) => setFormData({ ...formData, published_at: e.target.value ? new Date(e.target.value).toISOString() : null })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {formData.status === 'scheduled' && (
-              <div className="mt-2 space-y-1">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Current time: <span className="font-medium text-gray-700 dark:text-gray-300">{currentTime.toLocaleString()}</span>
-                </p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">
-                  This post will be automatically published at the scheduled time.
-                </p>
+
+            {/* Date and Time Inputs */}
+            <div className="flex flex-wrap gap-3">
+              <div className="flex-1 min-w-[180px]">
+                <label htmlFor="publish_date" className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Date</label>
+                <input
+                  type="date"
+                  id="publish_date"
+                  value={formData.published_at ? new Date(formData.published_at).toISOString().slice(0, 10) : ''}
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      const currentDateTime = formData.published_at ? new Date(formData.published_at) : new Date()
+                      const [year, month, day] = e.target.value.split('-').map(Number)
+                      currentDateTime.setFullYear(year, month - 1, day)
+                      setFormData({ ...formData, published_at: currentDateTime.toISOString() })
+                    }
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
+              <div className="w-32">
+                <label htmlFor="publish_time" className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Time</label>
+                <input
+                  type="time"
+                  id="publish_time"
+                  value={formData.published_at ? new Date(formData.published_at).toTimeString().slice(0, 5) : ''}
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      const currentDateTime = formData.published_at ? new Date(formData.published_at) : new Date()
+                      const [hours, minutes] = e.target.value.split(':').map(Number)
+                      currentDateTime.setHours(hours, minutes, 0, 0)
+                      setFormData({ ...formData, published_at: currentDateTime.toISOString() })
+                    }
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* Quick Select Buttons */}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, published_at: new Date().toISOString() })}
+                className="px-3 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              >
+                Now
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const tomorrow = new Date()
+                  tomorrow.setDate(tomorrow.getDate() + 1)
+                  tomorrow.setHours(9, 0, 0, 0)
+                  setFormData({ ...formData, published_at: tomorrow.toISOString() })
+                }}
+                className="px-3 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              >
+                Tomorrow 9 AM
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const nextWeek = new Date()
+                  nextWeek.setDate(nextWeek.getDate() + 7)
+                  nextWeek.setHours(9, 0, 0, 0)
+                  setFormData({ ...formData, published_at: nextWeek.toISOString() })
+                }}
+                className="px-3 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              >
+                Next Week
+              </button>
+            </div>
+
+            {/* Current Selection Display */}
+            <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                <span className="font-medium">Selected:</span>{' '}
+                {formData.published_at
+                  ? new Date(formData.published_at).toLocaleString('en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true
+                    })
+                  : 'Not set'}
+              </p>
+              {formData.status === 'scheduled' && (
+                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                  Current time: {currentTime.toLocaleString()}
+                </p>
+              )}
+            </div>
+
+            {formData.status === 'scheduled' && (
+              <p className="mt-2 text-xs text-blue-600 dark:text-blue-400">
+                This post will be automatically published at the scheduled time.
+              </p>
             )}
           </div>
         )}

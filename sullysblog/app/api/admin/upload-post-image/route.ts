@@ -1,13 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
-
     // Check authentication
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -22,50 +23,56 @@ export async function POST(request: NextRequest) {
     // Validate file type
     const allowedTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
     if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: 'Invalid file type. Allowed: PNG, JPG, GIF, WebP' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Invalid file type. Allowed: PNG, JPG, GIF, WebP' },
+        { status: 400 }
+      )
     }
 
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File too large. Maximum size is 5MB' }, { status: 400 })
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024
+    if (file.size > maxSize) {
+      return NextResponse.json(
+        { error: 'File too large. Maximum size is 5MB' },
+        { status: 400 }
+      )
     }
 
-    // Generate unique filename with folder structure
-    const ext = file.name.split('.').pop()
+    // Generate unique filename
     const timestamp = Date.now()
-    const prefix = postId || 'new'
-    const filename = `${prefix}/${timestamp}.${ext}`
+    const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+    const filename = postId
+      ? `posts/${postId}/${timestamp}.${extension}`
+      : `posts/temp/${timestamp}.${extension}`
 
-    // Convert file to buffer
-    const arrayBuffer = await file.arrayBuffer()
-    const buffer = new Uint8Array(arrayBuffer)
-
-    // Upload to Supabase Storage
-    const { data, error } = await supabase.storage
+    // Upload to Supabase Storage using admin client
+    const adminClient = createAdminClient()
+    const { data: uploadData, error: uploadError } = await adminClient.storage
       .from('post-images')
-      .upload(filename, buffer, {
+      .upload(filename, file, {
         contentType: file.type,
-        upsert: true
+        upsert: false
       })
 
-    if (error) {
-      console.error('Upload error:', error)
-      return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 })
+    if (uploadError) {
+      console.error('Upload error:', uploadError)
+      return NextResponse.json(
+        { error: uploadError.message },
+        { status: 500 }
+      )
     }
 
     // Get public URL
-    const { data: urlData } = supabase.storage
+    const { data: { publicUrl } } = adminClient.storage
       .from('post-images')
-      .getPublicUrl(filename)
+      .getPublicUrl(uploadData.path)
 
-    return NextResponse.json({
-      success: true,
-      url: urlData.publicUrl,
-      filename
-    })
-
+    return NextResponse.json({ url: publicUrl })
   } catch (error) {
-    console.error('Upload error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Error in upload-post-image:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
   }
 }
