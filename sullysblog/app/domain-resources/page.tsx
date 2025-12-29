@@ -136,14 +136,10 @@ export default async function DomainResourcesPage() {
                         <ResourceCard key={resource.id} resource={resource} />
                       ))}
 
-                      {/* Sponsored listings in a grid */}
-                      {sponsored.length > 0 && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {sponsored.map(resource => (
-                            <ResourceCard key={resource.id} resource={resource} />
-                          ))}
-                        </div>
-                      )}
+                      {/* Sponsored listings */}
+                      {sponsored.map(resource => (
+                        <ResourceCard key={resource.id} resource={resource} />
+                      ))}
 
                       {/* Free listings */}
                       {free.length > 0 && (
