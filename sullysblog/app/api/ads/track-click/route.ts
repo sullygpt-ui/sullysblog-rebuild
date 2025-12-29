@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const supabase = createAdminClient()
 
     // Insert click record into ad_clicks table
-    const { error } = await supabase
+    await supabase
       .from('ad_clicks')
       .insert({
         ad_id: adId,
@@ -25,13 +25,8 @@ export async function POST(request: NextRequest) {
                     request.headers.get('x-real-ip') || null
       })
 
-    if (error) {
-      console.error('Error inserting ad click:', error)
-    }
-
     return NextResponse.json({ success: true })
   } catch (error) {
-    // Silently return success - don't crash for non-critical tracking
     console.error('Error tracking click:', error)
     return NextResponse.json({ success: true })
   }
