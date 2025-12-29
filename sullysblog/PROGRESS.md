@@ -913,6 +913,151 @@ CRON_SECRET=random-secret-string
 
 ---
 
-**Last Updated:** December 28, 2024
-**Status:** ✅ Phase 8 Admin & Editor Improvements Complete
-**Next:** Add affiliate links to resources, upgrade key resources to sponsored/featured
+## 🚀 Phase 9: Production Deployment (December 29, 2024)
+
+### Vercel Deployment
+- [x] Deployed Next.js 16 app to Vercel
+- [x] Connected GitHub repository for auto-deployments
+- [x] Set Framework Preset to "Next.js" (critical for build)
+- [x] Configured all environment variables in Vercel
+
+### DNS Configuration
+- [x] Changed nameservers from Flywheel (WordPress) to Vercel
+  - `ns1.vercel-dns.com`
+  - `ns2.vercel-dns.com`
+- [x] Removed old Flywheel A records from Vercel DNS
+- [x] Added domain `sullysblog.com` to Vercel project
+- [x] SSL certificate automatically provisioned
+
+### Email Configuration (Gmail)
+- [x] Added MX records for Gmail:
+  - `ASPMX.L.GOOGLE.COM` (priority 1)
+  - `ALT1.ASPMX.L.GOOGLE.COM` (priority 5)
+  - `ALT2.ASPMX.L.GOOGLE.COM` (priority 5)
+  - `ALT3.ASPMX.L.GOOGLE.COM` (priority 10)
+  - `ALT4.ASPMX.L.GOOGLE.COM` (priority 10)
+- [x] Added SPF TXT record: `v=spf1 include:_spf.google.com ~all`
+
+### Middleware Fixes
+- [x] Fixed `MIDDLEWARE_INVOCATION_FAILED` errors
+- [x] Changed from static import to dynamic import for `@supabase/ssr`
+- [x] Skip Supabase import entirely for public routes (performance)
+- [x] Only load Supabase when auth checking is needed
+- **File:** `middleware.ts`
+
+**Key Fix:**
+```typescript
+// Before (broken in Edge runtime)
+import { createServerClient } from '@supabase/ssr'
+
+// After (works in Edge runtime)
+const { createServerClient } = await import('@supabase/ssr')
+```
+
+### Newsletter/Mailchimp Integration Fix
+- [x] Fixed Mailchimp sync not working in production
+- [x] Changed Authorization header format:
+  - Before: `Authorization: apikey API_KEY`
+  - After: `Authorization: Basic base64(anystring:API_KEY)`
+- [x] Added detailed logging for debugging
+- [x] Newsletter saves to Supabase `newsletter_subscribers` table
+- [x] Newsletter syncs to Mailchimp list
+- **File:** `app/api/newsletter/subscribe/route.ts`
+
+### Environment Variables (Vercel)
+Required environment variables configured in Vercel:
+
+```bash
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=xxx
+SUPABASE_SERVICE_KEY=xxx
+
+# Site
+NEXT_PUBLIC_SITE_URL=https://sullysblog.com
+
+# Mailchimp
+MAILCHIMP_API_KEY=xxx-us7
+MAILCHIMP_SERVER_PREFIX=us7
+MAILCHIMP_LIST_ID=xxx
+
+# Email (Resend)
+RESEND_API_KEY=re_xxx
+CONTACT_EMAIL=xxx@sullysblog.com
+
+# Stripe (Production)
+STRIPE_SECRET_KEY=sk_live_xxx
+STRIPE_WEBHOOK_SECRET=whsec_xxx
+
+# Cron Security
+CRON_SECRET=xxx
+```
+
+### Cron Jobs
+- [x] Configured in `vercel.json`:
+  - `/api/cron/check-expirations` - Daily at 9:00 AM UTC
+  - `/api/cron/publish-scheduled` - Hourly
+
+### WordPress Migration Complete
+- [x] All content migrated from WordPress to Supabase
+- [x] URL redirects configured in `redirects.json`
+- [x] Old WordPress URLs redirect to new paths
+- [x] RSS feed redirects working (`?feed=rss2` → `/api/feed`)
+
+### Production Checklist
+- [x] Domain pointing to Vercel ✅
+- [x] SSL certificate active ✅
+- [x] Environment variables set ✅
+- [x] Database connected (Supabase) ✅
+- [x] Authentication working ✅
+- [x] Newsletter signup working ✅
+- [x] Mailchimp sync working ✅
+- [x] Email MX records configured ✅
+- [x] Cron jobs configured ✅
+- [ ] Stripe switched to production keys (pending)
+
+### Files Modified
+| File | Change |
+|------|--------|
+| `middleware.ts` | Dynamic import for Edge runtime compatibility |
+| `app/api/newsletter/subscribe/route.ts` | Fixed Mailchimp auth header, added logging |
+| `vercel.json` | Cron job configuration |
+| `next.config.ts` | Redirects from WordPress URLs |
+
+---
+
+## 🌐 Production URLs
+
+- **Live Site:** https://sullysblog.com
+- **Admin Dashboard:** https://sullysblog.com/admin
+- **Resources:** https://sullysblog.com/domain-resources
+- **Blog:** https://sullysblog.com/blog
+- **RSS Feed:** https://sullysblog.com/api/feed
+
+---
+
+## 📊 Current Statistics
+
+### Content
+- **Blog Posts:** 486+ articles
+- **Categories:** 20 resource categories
+- **Resources:** 89 domain resources
+- **Dictionary Terms:** Domain terminology glossary
+
+### Newsletter
+- **Mailchimp List:** SullysBlog (1,039 subscribers)
+- **New signups:** Syncing to both Supabase and Mailchimp
+
+### Infrastructure
+- **Hosting:** Vercel (Serverless)
+- **Database:** Supabase (PostgreSQL)
+- **Email:** Resend API
+- **Newsletter:** Mailchimp
+- **Payments:** Stripe (test mode)
+
+---
+
+**Last Updated:** December 29, 2024
+**Status:** ✅ Phase 9 Production Deployment Complete
+**Live at:** https://sullysblog.com
+**Next:** Switch Stripe to production keys, add affiliate links to resources
