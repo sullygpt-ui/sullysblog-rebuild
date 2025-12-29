@@ -28,19 +28,25 @@ export function AdDisplay({ ad }: AdDisplayProps) {
     trackImpression()
   }, [ad.id])
 
-  const handleClick = async () => {
+  const handleClick = () => {
     // Track click when ad is clicked
-    try {
-      await fetch('/api/ads/track-click', {
+    // Use sendBeacon for reliable tracking even when navigating away
+    const data = JSON.stringify({
+      adId: ad.id,
+      pageUrl: window.location.pathname
+    })
+
+    // sendBeacon is designed to reliably send data during page unload/navigation
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon('/api/ads/track-click', new Blob([data], { type: 'application/json' }))
+    } else {
+      // Fallback for older browsers
+      fetch('/api/ads/track-click', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          adId: ad.id,
-          pageUrl: window.location.pathname
-        })
-      })
-    } catch (error) {
-      console.error('Failed to track ad click:', error)
+        body: data,
+        keepalive: true // Allows request to outlive the page
+      }).catch(() => {})
     }
   }
 
