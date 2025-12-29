@@ -12,6 +12,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.rewrite(feedUrl)
   }
 
+  // Handle /category/:slug/feed URLs
+  const pathname = request.nextUrl.pathname
+  const categoryFeedMatch = pathname.match(/^\/category\/([^/]+)\/feed\/?$/)
+  if (categoryFeedMatch) {
+    const slug = categoryFeedMatch[1]
+    const feedUrl = new URL('/api/feed', request.url)
+    // Handle typo "domians" -> "domains"
+    feedUrl.searchParams.set('cat', slug === 'domians' ? 'domains' : slug)
+    return NextResponse.rewrite(feedUrl)
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
