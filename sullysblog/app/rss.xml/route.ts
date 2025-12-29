@@ -49,7 +49,7 @@ export async function GET() {
     <managingEditor>michael@sullysblog.com (Michael Sullivan)</managingEditor>
     <webMaster>michael@sullysblog.com (Michael Sullivan)</webMaster>
     <image>
-      <url>https://sullysblog.com/logo.png</url>
+      <url>https://sullysblog.com/favicon.ico</url>
       <title>SullysBlog.com</title>
       <link>https://sullysblog.com</link>
     </image>
