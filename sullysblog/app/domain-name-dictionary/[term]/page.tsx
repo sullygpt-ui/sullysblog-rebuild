@@ -6,6 +6,7 @@ import { Sidebar } from '@/components/layout/Sidebar'
 import { StickySidebar } from '@/components/layout/StickySidebar'
 import { AdZone } from '@/components/ads/AdZone'
 import { createClient } from '@/lib/supabase/server'
+import { DefinedTermJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd'
 
 type Props = {
   params: Promise<{ term: string }>
@@ -71,8 +72,27 @@ export default async function TermPage({ params }: Props) {
 
   const hasSponsorAds = (sponsorAdsCount ?? 0) > 0
 
+  // Strip HTML tags for plain text definition in schema
+  const plainTextDefinition = (term.short_definition || term.full_definition || '')
+    .replace(/<[^>]*>/g, '')
+    .substring(0, 500)
+
   return (
     <>
+      {/* Schema Markup */}
+      <DefinedTermJsonLd
+        term={term.term}
+        definition={plainTextDefinition}
+        url={`https://sullysblog.com/domain-name-dictionary/${term.slug}`}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', url: 'https://sullysblog.com' },
+          { name: 'Dictionary', url: 'https://sullysblog.com/domain-name-dictionary' },
+          { name: term.term, url: `https://sullysblog.com/domain-name-dictionary/${term.slug}` },
+        ]}
+      />
+
       {/* Sponsor Ads Section */}
       {hasSponsorAds && (
         <div className="bg-gray-100 dark:bg-gray-900 py-8 mb-8">

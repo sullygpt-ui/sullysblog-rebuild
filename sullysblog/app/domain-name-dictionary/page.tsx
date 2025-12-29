@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getAllTerms, groupTermsByLetter } from '@/lib/queries/dictionary'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { StickySidebar } from '@/components/layout/StickySidebar'
+import { DictionaryCollectionJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd'
 
 export const metadata: Metadata = {
   title: 'Domain Name Dictionary - Complete Glossary of Domain Investing Terms | SullysBlog.com',
@@ -24,8 +25,25 @@ export default async function DictionaryPage() {
   const groupedTerms = groupTermsByLetter(terms)
   const letters = Object.keys(groupedTerms).sort()
 
+  // Prepare terms for schema markup
+  const schemaTerms = terms.map(t => ({
+    term: t.term,
+    slug: t.slug,
+    definition: (t.short_definition || '').substring(0, 200),
+  }))
+
   return (
-    <div className="max-w-7xl mx-auto">
+    <>
+      {/* Schema Markup */}
+      <DictionaryCollectionJsonLd terms={schemaTerms} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', url: 'https://sullysblog.com' },
+          { name: 'Dictionary', url: 'https://sullysblog.com/domain-name-dictionary' },
+        ]}
+      />
+
+      <div className="max-w-7xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2">
@@ -116,5 +134,6 @@ export default async function DictionaryPage() {
         </div>
       </div>
     </div>
+    </>
   )
 }

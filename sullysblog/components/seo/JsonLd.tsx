@@ -167,3 +167,73 @@ export function ProductJsonLd({
     />
   )
 }
+
+type DefinedTermJsonLdProps = {
+  term: string
+  definition: string
+  url: string
+}
+
+export function DefinedTermJsonLd({
+  term,
+  definition,
+  url,
+}: DefinedTermJsonLdProps) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'DefinedTerm',
+    name: term,
+    description: definition,
+    url: url,
+    inDefinedTermSet: {
+      '@type': 'DefinedTermSet',
+      name: 'Domain Name Dictionary',
+      url: 'https://sullysblog.com/domain-name-dictionary',
+    },
+  }
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  )
+}
+
+type DictionaryItem = {
+  term: string
+  slug: string
+  definition: string
+}
+
+type DictionaryCollectionJsonLdProps = {
+  terms: DictionaryItem[]
+}
+
+export function DictionaryCollectionJsonLd({ terms }: DictionaryCollectionJsonLdProps) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'DefinedTermSet',
+    name: 'Domain Name Dictionary',
+    description: 'A comprehensive glossary of domain investing terms, definitions, and industry jargon for domain name investors.',
+    url: 'https://sullysblog.com/domain-name-dictionary',
+    publisher: {
+      '@type': 'Organization',
+      name: 'SullysBlog.com',
+      url: 'https://sullysblog.com',
+    },
+    hasDefinedTerm: terms.map(item => ({
+      '@type': 'DefinedTerm',
+      name: item.term,
+      description: item.definition,
+      url: `https://sullysblog.com/domain-name-dictionary/${item.slug}`,
+    })),
+  }
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  )
+}
