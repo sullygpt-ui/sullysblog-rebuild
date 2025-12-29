@@ -1,9 +1,9 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import Link from 'next/link'
 import { AdsTable } from '@/components/admin/AdsTable'
 
 export default async function AdsPage() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Fetch all ads with their performance
   const { data: ads } = await supabase
