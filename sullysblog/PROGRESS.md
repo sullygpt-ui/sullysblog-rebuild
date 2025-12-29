@@ -826,6 +826,93 @@ CRON_SECRET=random-secret-string
 
 ---
 
-**Last Updated:** December 27, 2024
-**Status:** ✅ Phase 7 Resource Directory Expansion Complete
+---
+
+## 🎨 Phase 8: Admin & Editor Improvements (December 28, 2024)
+
+### Admin Page Editor (About/Contact)
+- [x] Created WYSIWYG editor for static pages
+- [x] Admin interface at `/admin/pages`
+- [x] Edit About and Contact page content from admin
+- [x] HTML/Visual toggle mode
+- [x] Full formatting toolbar (bold, italic, headings, lists, links, images)
+- **Files:**
+  - `app/admin/pages/page.tsx`
+  - `app/admin/pages/[slug]/page.tsx`
+  - `app/admin/pages/[slug]/PageEditor.tsx`
+  - `app/api/admin/pages/[slug]/route.ts`
+  - `components/admin/WysiwygEditor.tsx`
+  - `lib/queries/pages.ts`
+
+### Social Share Buttons
+- [x] Added share buttons to blog posts
+- [x] X (Twitter) sharing
+- [x] Facebook sharing
+- [x] Pinterest sharing (with image)
+- [x] LinkedIn sharing
+- [x] Copy link button with feedback
+- **File:** `components/blog/SocialShare.tsx`
+
+### Post Editor Fixes
+- [x] Fixed WYSIWYG not showing formatted text
+- [x] Added comprehensive TipTap/ProseMirror CSS
+- [x] Headings (H1, H2, H3) display correctly
+- [x] Bullet and numbered lists show properly
+- [x] Bold, italic, strikethrough work
+- [x] Blockquotes, code blocks styled
+- [x] Added `!important` flags to override Tailwind v4 reset
+- **Files:** `app/globals.css`, `components/editor/RichTextEditor.tsx`
+
+### Post API Routes
+- [x] Created POST `/api/admin/posts` for creating posts
+- [x] Created PUT `/api/admin/posts/[id]` for updating posts
+- [x] Uses admin client to bypass RLS
+- [x] Fixed author_id foreign key issue
+- [x] Fixed column name mapping (seo_title/seo_description)
+- **Files:** `app/api/admin/posts/route.ts`, `app/api/admin/posts/[id]/route.ts`
+
+### Date/Time Picker Improvement
+- [x] Separate date and time input fields
+- [x] Quick action buttons (Now, Tomorrow 9 AM, Next Week)
+- [x] Friendly date display format
+- [x] Current time display for scheduled posts
+- **File:** `components/admin/PostForm.tsx`
+
+### Admin Posts Page Fixes
+- [x] Changed to use admin client (bypass RLS)
+- [x] Now shows draft and scheduled posts
+- [x] Sorted by created_at (newest first)
+- **Files:** `app/admin/posts/page.tsx`, `app/admin/posts/[id]/page.tsx`, `app/admin/posts/new/page.tsx`
+
+### Files Created
+| File | Description |
+|------|-------------|
+| `app/admin/pages/page.tsx` | Admin pages list |
+| `app/admin/pages/[slug]/page.tsx` | Edit page view |
+| `app/admin/pages/[slug]/PageEditor.tsx` | Page editor component |
+| `app/api/admin/pages/[slug]/route.ts` | Page update API |
+| `app/api/admin/posts/route.ts` | Create post API |
+| `components/admin/WysiwygEditor.tsx` | WYSIWYG editor |
+| `components/blog/SocialShare.tsx` | Social share buttons |
+| `lib/queries/pages.ts` | Page query functions |
+
+### Files Modified
+| File | Change |
+|------|--------|
+| `app/globals.css` | Added TipTap editor styles |
+| `app/[slug]/page.tsx` | Added SocialShare component |
+| `app/about/page.tsx` | Fetches content from database |
+| `app/contact/page.tsx` | Fetches content from database |
+| `app/admin/layout.tsx` | Added Pages nav link |
+| `app/admin/posts/page.tsx` | Use admin client |
+| `app/admin/posts/[id]/page.tsx` | Use admin client, fix column names |
+| `app/admin/posts/new/page.tsx` | Use admin client |
+| `app/api/admin/posts/[id]/route.ts` | Added PUT handler |
+| `components/admin/PostForm.tsx` | Improved date picker, use API routes |
+| `components/editor/RichTextEditor.tsx` | Added tiptap-editor class |
+
+---
+
+**Last Updated:** December 28, 2024
+**Status:** ✅ Phase 8 Admin & Editor Improvements Complete
 **Next:** Add affiliate links to resources, upgrade key resources to sponsored/featured
