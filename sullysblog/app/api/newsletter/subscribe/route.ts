@@ -39,25 +39,34 @@ export async function POST(request: NextRequest) {
     const mailchimpListId = process.env.MAILCHIMP_LIST_ID
     const mailchimpServer = process.env.MAILCHIMP_SERVER_PREFIX // e.g., 'us21'
 
+    console.log('Mailchimp config check:', {
+      hasApiKey: !!mailchimpApiKey,
+      hasListId: !!mailchimpListId,
+      hasServer: !!mailchimpServer,
+      server: mailchimpServer,
+    })
+
     if (mailchimpApiKey && mailchimpListId && mailchimpServer) {
       try {
-        const response = await fetch(
-          `https://${mailchimpServer}.api.mailchimp.com/3.0/lists/${mailchimpListId}/members`,
-          {
-            method: 'POST',
-            headers: {
-              'Authorization': `apikey ${mailchimpApiKey}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email_address: email.toLowerCase(),
-              status: 'subscribed',
-            }),
-          }
-        )
+        const mailchimpUrl = `https://${mailchimpServer}.api.mailchimp.com/3.0/lists/${mailchimpListId}/members`
+        console.log('Mailchimp request URL:', mailchimpUrl)
+
+        const response = await fetch(mailchimpUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Basic ${Buffer.from(`anystring:${mailchimpApiKey}`).toString('base64')}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email_address: email.toLowerCase(),
+            status: 'subscribed',
+          }),
+        })
+
+        const data = await response.json()
+        console.log('Mailchimp response:', { status: response.status, data })
 
         if (!response.ok) {
-          const data = await response.json()
           // Member already exists is not an error
           if (data.title !== 'Member Exists') {
             console.error('Mailchimp error:', data)
@@ -67,6 +76,8 @@ export async function POST(request: NextRequest) {
         console.error('Mailchimp sync failed:', mailchimpError)
         // Don't fail the request if Mailchimp fails - email is already saved to DB
       }
+    } else {
+      console.log('Mailchimp not configured - skipping sync')
     }
 
     return NextResponse.json({ success: true, message: 'Successfully subscribed!' })
