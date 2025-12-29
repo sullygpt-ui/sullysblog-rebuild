@@ -1,4 +1,3 @@
-import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
@@ -14,19 +13,34 @@ export async function middleware(request: NextRequest) {
     return NextResponse.rewrite(feedUrl)
   }
 
-  // Skip auth for non-protected routes if env vars are missing
+  // Check if Supabase env vars are available
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
+  // Skip auth check for non-protected routes or if env vars missing
+  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin') && request.nextUrl.pathname !== '/admin/login'
+  const isProtectedStoreRoute = ['/store/orders', '/store/checkout'].some(route =>
+    request.nextUrl.pathname.startsWith(route)
+  )
+
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Missing Supabase env vars:', { supabaseUrl: !!supabaseUrl, supabaseAnonKey: !!supabaseAnonKey })
-    // Allow request to continue for non-admin routes
-    if (!request.nextUrl.pathname.startsWith('/admin') || request.nextUrl.pathname === '/admin/login') {
-      return NextResponse.next()
+    // Allow public routes, block protected routes
+    if (isAdminRoute || isProtectedStoreRoute) {
+      return new NextResponse('Configuration error', { status: 500 })
     }
-    // Block admin routes if we can't verify auth
-    return new NextResponse('Configuration error', { status: 500 })
+    return NextResponse.next()
   }
+
+  // Only import Supabase when we need auth checking
+  if (!isAdminRoute && !isProtectedStoreRoute &&
+      request.nextUrl.pathname !== '/admin/login' &&
+      request.nextUrl.pathname !== '/auth/login' &&
+      request.nextUrl.pathname !== '/auth/register') {
+    return NextResponse.next()
+  }
+
+  // Dynamically import Supabase SSR
+  const { createServerClient } = await import('@supabase/ssr')
 
   let supabaseResponse = NextResponse.next({
     request,
@@ -41,7 +55,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
             request,
           })
@@ -57,13 +71,11 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // Protect admin routes (except login page)
-  if (request.nextUrl.pathname.startsWith('/admin') && request.nextUrl.pathname !== '/admin/login') {
-    if (!user) {
-      const redirectUrl = request.nextUrl.clone()
-      redirectUrl.pathname = '/admin/login'
-      redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
-      return NextResponse.redirect(redirectUrl)
-    }
+  if (isAdminRoute && !user) {
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = '/admin/login'
+    redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
+    return NextResponse.redirect(redirectUrl)
   }
 
   // If user is logged in and trying to access admin login page, redirect to admin dashboard
@@ -74,11 +86,6 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protect store routes that require authentication
-  const protectedStoreRoutes = ['/store/orders', '/store/checkout']
-  const isProtectedStoreRoute = protectedStoreRoutes.some(route =>
-    request.nextUrl.pathname.startsWith(route)
-  )
-
   if (isProtectedStoreRoute && !user) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = '/auth/login'
