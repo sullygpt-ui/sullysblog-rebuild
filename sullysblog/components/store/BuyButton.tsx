@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { Product } from '@/lib/queries/products'
 
@@ -149,7 +150,20 @@ export function BuyButton({ product }: BuyButtonProps) {
     <div className="space-y-4">
       {error && (
         <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+          <p className="text-sm text-red-800 dark:text-red-200">
+            {error}
+            {error.toLowerCase().includes('sign in') && (
+              <>
+                {' '}
+                <Link
+                  href={`/auth/login?redirectTo=/store/${product.slug}`}
+                  className="underline font-medium hover:text-red-600 dark:hover:text-red-300"
+                >
+                  Sign in here
+                </Link>
+              </>
+            )}
+          </p>
         </div>
       )}
 
