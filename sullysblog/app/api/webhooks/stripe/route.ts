@@ -4,6 +4,7 @@ import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { sendEmail } from '@/lib/email/sender'
 import { getPurchaseConfirmation, getDomainPurchaseConfirmation } from '@/lib/email/templates'
+import { addSubscriber } from '@/lib/mailchimp'
 
 // Ensure raw body is available for signature verification
 export const runtime = 'nodejs'
@@ -79,6 +80,12 @@ export async function POST(request: NextRequest) {
             to: customerEmail,
             subject: emailTemplate.subject,
             html: emailTemplate.html,
+          })
+
+          // Add customer to Mailchimp list
+          await addSubscriber({
+            email: customerEmail,
+            tags: ['customer', 'domain-purchase']
           })
         }
 
@@ -212,6 +219,12 @@ export async function POST(request: NextRequest) {
           to: customerEmail,
           subject: emailTemplate.subject,
           html: emailTemplate.html,
+        })
+
+        // Add customer to Mailchimp list
+        await addSubscriber({
+          email: customerEmail,
+          tags: ['customer', 'product-purchase']
         })
       }
     } catch (error) {
