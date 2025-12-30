@@ -44,7 +44,7 @@ export function RichTextEditor({ content, onChange, placeholder, postId }: RichT
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-lg dark:prose-invert max-w-none focus:outline-none min-h-[400px] px-4 py-3',
+        class: 'prose prose-lg dark:prose-invert max-w-none focus:outline-none min-h-[400px] px-4 py-3 outline-none',
       },
     },
   })
@@ -350,16 +350,18 @@ export function RichTextEditor({ content, onChange, placeholder, postId }: RichT
       </div>
 
       {/* Editor Content - Scrollable */}
-      <div className="bg-white dark:bg-gray-900 max-h-[500px] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-900 h-[500px] overflow-y-auto">
         {showHtml ? (
           <textarea
             value={htmlContent}
             onChange={(e) => handleHtmlChange(e.target.value)}
-            className="w-full min-h-[500px] p-4 font-mono text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none"
+            className="w-full h-full p-4 font-mono text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none resize-none"
             placeholder="Enter HTML..."
           />
         ) : (
-          <EditorContent editor={editor} />
+          <div className="h-full">
+            <EditorContent editor={editor} className="h-full [&_.ProseMirror]:min-h-full" />
+          </div>
         )}
       </div>
 
