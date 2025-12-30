@@ -101,16 +101,25 @@ export default async function PostPage({ params }: Props) {
     notFound()
   }
 
-  // Fetch post
-  const post = await getPostBySlug(slug)
+  // Check if user is authenticated (admin)
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const isAdmin = !!user
+
+  // Fetch post - allow unpublished if admin
+  const post = await getPostBySlug(slug, isAdmin)
 
   if (!post) {
     notFound()
   }
 
-  // Track view (fire and forget - don't await)
-  const supabase = await createClient()
-  supabase.rpc('increment_post_views', { post_slug: slug })
+  // Check if this is a preview (not published)
+  const isPreview = post.status !== 'published'
+
+  // Track view only for published posts (fire and forget - don't await)
+  if (!isPreview) {
+    supabase.rpc('increment_post_views', { post_slug: slug })
+  }
 
   // Get category IDs for related posts
   const categoryIds = post.categories.map(c => c.id)
@@ -135,6 +144,23 @@ export default async function PostPage({ params }: Props) {
 
   return (
     <>
+      {/* Preview Banner */}
+      {isPreview && (
+        <div className="bg-yellow-500 text-black py-3 px-4 -mx-4 mb-6">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <span className="font-semibold">Preview Mode</span>
+              <span className="text-sm">
+                - This post is <strong>{post.status}</strong> and not visible to the public
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
       <ArticleJsonLd
         title={post.title}
         description={post.seo_description || post.excerpt || post.title}
