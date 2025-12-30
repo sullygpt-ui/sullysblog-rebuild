@@ -111,12 +111,8 @@ export default async function PostPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser()
   const isAdmin = !!user
 
-  console.log('PostPage debug:', { slug, isAdmin, userId: user?.id })
-
   // Fetch post - allow unpublished if admin
   const post = await getPostBySlug(slug, isAdmin)
-
-  console.log('PostPage post result:', { found: !!post, status: post?.status })
 
   if (!post) {
     notFound()

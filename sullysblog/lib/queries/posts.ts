@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { Database } from '@/lib/types/database'
 
 type Post = Database['public']['Tables']['posts']['Row']
@@ -82,9 +83,8 @@ async function loadCategoriesForPosts(supabase: any, postIds: string[]): Promise
 }
 
 export async function getPostBySlug(slug: string, allowUnpublished: boolean = false): Promise<PostWithCategories | null> {
-  const supabase = await createClient()
-
-  console.log('getPostBySlug called:', { slug, allowUnpublished })
+  // Use admin client if allowing unpublished (to bypass RLS)
+  const supabase = allowUnpublished ? createAdminClient() : await createClient()
 
   // Fetch post
   let query = supabase
@@ -98,8 +98,6 @@ export async function getPostBySlug(slug: string, allowUnpublished: boolean = fa
   }
 
   const { data: post, error: postError } = await query.single()
-
-  console.log('getPostBySlug result:', { found: !!post, error: postError?.message, status: post?.status })
 
   if (postError || !post) {
     return null
