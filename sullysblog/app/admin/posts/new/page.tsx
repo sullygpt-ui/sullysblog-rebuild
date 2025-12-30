@@ -1,8 +1,13 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import { PostForm } from '@/components/admin/PostForm'
+import { PostForm, PostFormData } from '@/components/admin/PostForm'
 import Link from 'next/link'
 
-export default async function NewPostPage() {
+type Props = {
+  searchParams: Promise<{ date?: string }>
+}
+
+export default async function NewPostPage({ searchParams }: Props) {
+  const params = await searchParams
   const supabase = createAdminClient()
 
   // Fetch categories for the dropdown
@@ -10,6 +15,28 @@ export default async function NewPostPage() {
     .from('categories')
     .select('id, name')
     .order('name')
+
+  // If date is provided from calendar, pre-fill the form
+  let initialData: Partial<PostFormData> | undefined
+  if (params.date) {
+    const selectedDate = new Date(params.date + 'T09:00:00')
+    const now = new Date()
+    const isInFuture = selectedDate > now
+
+    initialData = {
+      title: '',
+      slug: '',
+      content: '',
+      excerpt: null,
+      featured_image_url: null,
+      category_ids: [],
+      status: isInFuture ? 'scheduled' : 'draft',
+      published_at: selectedDate.toISOString(),
+      meta_title: null,
+      meta_description: null,
+      meta_keywords: null,
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -19,6 +46,11 @@ export default async function NewPostPage() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create New Post</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
             Write a new blog post
+            {params.date && (
+              <span className="ml-2 text-blue-600 dark:text-blue-400">
+                (Scheduled for {new Date(params.date).toLocaleDateString()})
+              </span>
+            )}
           </p>
         </div>
         <Link
@@ -29,7 +61,7 @@ export default async function NewPostPage() {
         </Link>
       </div>
 
-      <PostForm mode="create" categories={categories || []} />
+      <PostForm mode="create" categories={categories || []} initialData={initialData as PostFormData} />
     </div>
   )
 }

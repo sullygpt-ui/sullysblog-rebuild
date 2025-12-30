@@ -192,3 +192,31 @@ export async function getAllPosts(
     total: count || 0
   }
 }
+
+// Calendar post type - minimal data for calendar display
+export type CalendarPost = {
+  id: string
+  title: string
+  slug: string
+  status: 'draft' | 'scheduled' | 'published'
+  published_at: string | null
+  created_at: string
+}
+
+// Get all posts for calendar view (admin only)
+export async function getPostsForCalendar(): Promise<CalendarPost[]> {
+  // Use admin client to bypass RLS and get all posts
+  const supabase = createAdminClient()
+
+  const { data: posts, error } = await supabase
+    .from('posts')
+    .select('id, title, slug, status, published_at, created_at')
+    .order('published_at', { ascending: false, nullsFirst: false })
+
+  if (error || !posts) {
+    console.error('Error fetching calendar posts:', error)
+    return []
+  }
+
+  return posts as CalendarPost[]
+}
