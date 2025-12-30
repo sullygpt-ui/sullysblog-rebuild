@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 
 export type CategoryFormData = {
   id?: string
@@ -45,21 +44,20 @@ export function CategoryForm({ initialData, mode }: CategoryFormProps) {
     setError(null)
 
     try {
-      const supabase = createClient()
+      const url = mode === 'create'
+        ? '/api/admin/categories'
+        : `/api/admin/categories/${formData.id}`
 
-      if (mode === 'create') {
-        const { error: insertError } = await supabase
-          .from('categories')
-          .insert([formData])
+      const response = await fetch(url, {
+        method: mode === 'create' ? 'POST' : 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
 
-        if (insertError) throw insertError
-      } else {
-        const { error: updateError } = await supabase
-          .from('categories')
-          .update(formData)
-          .eq('id', formData.id!)
+      const data = await response.json()
 
-        if (updateError) throw updateError
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save category')
       }
 
       router.push('/admin/categories')
