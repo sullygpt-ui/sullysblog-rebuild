@@ -277,6 +277,19 @@ export function RichTextEditor({ content, onChange, placeholder, postId }: RichT
             >
               Link
             </button>
+            <button
+              type="button"
+              onClick={() => editor.chain().focus().unsetLink().run()}
+              disabled={!editor.isActive('link')}
+              className={`px-3 py-1 rounded text-sm ${
+                editor.isActive('link')
+                  ? 'bg-red-600 text-white hover:bg-red-700'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-50'
+              }`}
+              title="Remove link from selected text"
+            >
+              Unlink
+            </button>
             <div className="relative">
               <input
                 type="file"
