@@ -89,13 +89,16 @@ export async function POST(request: NextRequest) {
       const userId = session.metadata?.user_id
       const productId = session.metadata?.product_id
       const productName = session.metadata?.product_name
+      const couponId = session.metadata?.coupon_id || null
+      const discountAmount = parseFloat(session.metadata?.discount_amount || '0')
+      const originalPrice = parseFloat(session.metadata?.original_price || '0')
 
       if (!userId || !productId) {
         console.error('Missing metadata in session:', session.id)
         return NextResponse.json({ error: 'Missing metadata' }, { status: 400 })
       }
 
-      // Create order
+      // Create order with coupon info
       const orderNumber = generateOrderNumber()
       const { data: order, error: orderError } = await supabase
         .from('orders')
@@ -103,8 +106,10 @@ export async function POST(request: NextRequest) {
           user_id: userId,
           order_number: orderNumber,
           status: 'completed',
-          subtotal: (session.amount_subtotal || 0) / 100,
+          subtotal: originalPrice || (session.amount_subtotal || 0) / 100,
           total: (session.amount_total || 0) / 100,
+          discount_amount: discountAmount,
+          coupon_id: couponId || null,
           stripe_session_id: session.id,
           stripe_payment_intent_id: session.payment_intent as string,
           stripe_customer_id: session.customer as string,
@@ -173,6 +178,22 @@ export async function POST(request: NextRequest) {
             }
           }
         }
+      }
+
+      // Track coupon usage if applicable
+      if (couponId && discountAmount > 0) {
+        // Record coupon usage
+        await supabase
+          .from('coupon_usages')
+          .insert({
+            coupon_id: couponId,
+            order_id: order.id,
+            user_id: userId,
+            discount_amount: discountAmount,
+          })
+
+        // Increment coupon usage count
+        await supabase.rpc('increment_coupon_usage', { p_coupon_id: couponId })
       }
 
       // Send purchase confirmation email

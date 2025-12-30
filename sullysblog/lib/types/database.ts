@@ -187,6 +187,8 @@ export interface Database {
           completed_at: string | null
           created_at: string
           updated_at: string
+          coupon_id: string | null
+          discount_amount: number
         }
         Insert: Omit<Database['public']['Tables']['orders']['Row'], 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Database['public']['Tables']['orders']['Insert']>
@@ -215,6 +217,48 @@ export interface Database {
         }
         Insert: Omit<Database['public']['Tables']['download_access']['Row'], 'id' | 'granted_at'>
         Update: Partial<Database['public']['Tables']['download_access']['Insert']>
+      }
+      coupons: {
+        Row: {
+          id: string
+          code: string
+          description: string | null
+          discount_type: 'percentage' | 'fixed_amount'
+          discount_value: number
+          max_uses: number | null
+          max_uses_per_user: number | null
+          current_uses: number
+          starts_at: string | null
+          expires_at: string | null
+          minimum_purchase: number | null
+          applies_to: 'all' | 'specific_products'
+          status: 'active' | 'inactive' | 'archived'
+          created_at: string
+          updated_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['coupons']['Row'], 'id' | 'created_at' | 'updated_at' | 'current_uses'>
+        Update: Partial<Database['public']['Tables']['coupons']['Insert']>
+      }
+      coupon_products: {
+        Row: {
+          id: string
+          coupon_id: string
+          product_id: string
+        }
+        Insert: Omit<Database['public']['Tables']['coupon_products']['Row'], 'id'>
+        Update: Partial<Database['public']['Tables']['coupon_products']['Insert']>
+      }
+      coupon_usages: {
+        Row: {
+          id: string
+          coupon_id: string
+          order_id: string
+          user_id: string
+          discount_amount: number
+          used_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['coupon_usages']['Row'], 'id' | 'used_at'>
+        Update: Partial<Database['public']['Tables']['coupon_usages']['Insert']>
       }
     }
     Functions: {

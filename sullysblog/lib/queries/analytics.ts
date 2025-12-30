@@ -1,4 +1,13 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient as createServerClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
+
+// Use service role for analytics to bypass RLS
+function getServiceClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_KEY!
+  )
+}
 
 export type AnalyticsData = {
   totalResources: number
@@ -29,7 +38,8 @@ export type AnalyticsData = {
 }
 
 export async function getAnalyticsData(days: number = 30): Promise<AnalyticsData> {
-  const supabase = await createClient()
+  // Use service role to bypass RLS for analytics reads
+  const supabase = getServiceClient()
 
   // Get all resources
   const { data: resources } = await supabase

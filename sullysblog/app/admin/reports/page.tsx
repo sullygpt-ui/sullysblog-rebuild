@@ -41,7 +41,7 @@ export default async function ReportsPage({
       </div>
 
       {/* Report Links */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Link
           href="/admin/reports/sales"
           className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
@@ -49,6 +49,15 @@ export default async function ReportsPage({
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Sales Report</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             View sales by product, date range, and customer details
+          </p>
+        </Link>
+        <Link
+          href="/admin/reports/coupons"
+          className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
+        >
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Coupon Report</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Track coupon usage and discount performance
           </p>
         </Link>
         <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 border-blue-500">
