@@ -14,13 +14,14 @@ export type ProductWithDetails = Product & {
   bundle_items?: (BundleItem & { included_product: Product })[]
 }
 
-// Get all products (for admin)
+// Get all products (for admin) - excludes archived
 export async function getAllProducts(): Promise<Product[]> {
   const supabase = await createClient()
 
   const { data, error } = await supabase
     .from('products')
     .select('*')
+    .neq('status', 'archived')
     .order('display_order', { ascending: true })
     .order('created_at', { ascending: false })
 
