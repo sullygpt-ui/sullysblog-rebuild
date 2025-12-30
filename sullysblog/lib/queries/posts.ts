@@ -84,6 +84,8 @@ async function loadCategoriesForPosts(supabase: any, postIds: string[]): Promise
 export async function getPostBySlug(slug: string, allowUnpublished: boolean = false): Promise<PostWithCategories | null> {
   const supabase = await createClient()
 
+  console.log('getPostBySlug called:', { slug, allowUnpublished })
+
   // Fetch post
   let query = supabase
     .from('posts')
@@ -96,6 +98,8 @@ export async function getPostBySlug(slug: string, allowUnpublished: boolean = fa
   }
 
   const { data: post, error: postError } = await query.single()
+
+  console.log('getPostBySlug result:', { found: !!post, error: postError?.message, status: post?.status })
 
   if (postError || !post) {
     return null
