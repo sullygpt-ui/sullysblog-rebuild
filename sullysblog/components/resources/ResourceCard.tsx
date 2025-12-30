@@ -85,6 +85,8 @@ export function ResourceCard({ resource }: ResourceCardProps) {
             <Link
               href={trackingUrl}
               onClick={handleClick}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-block bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold px-6 py-3 rounded-lg transition-all transform hover:scale-105"
             >
               Visit Website →
@@ -126,6 +128,8 @@ export function ResourceCard({ resource }: ResourceCardProps) {
             <Link
               href={trackingUrl}
               onClick={handleClick}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-block text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-sm transition-colors"
             >
               Visit {resource.name} →
@@ -142,6 +146,8 @@ export function ResourceCard({ resource }: ResourceCardProps) {
       <Link
         href={trackingUrl}
         onClick={handleClick}
+        target="_blank"
+        rel="noopener noreferrer"
         className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
       >
         {resource.name}:
