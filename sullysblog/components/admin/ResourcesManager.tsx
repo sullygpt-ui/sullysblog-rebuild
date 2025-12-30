@@ -44,8 +44,8 @@ export function ResourcesManager({ initialResources }: ResourcesManagerProps) {
   const [editingResource, setEditingResource] = useState<Resource | null>(null)
 
   // Apply filters
-  const applyFilters = (search: string, category: string, type: string, status: string) => {
-    let filtered = resources
+  const applyFilters = (resourceList: Resource[], search: string, category: string, type: string, status: string) => {
+    let filtered = resourceList
 
     if (search) {
       filtered = filtered.filter(r =>
@@ -56,6 +56,8 @@ export function ResourcesManager({ initialResources }: ResourcesManagerProps) {
 
     if (category !== 'all') {
       filtered = filtered.filter(r => r.category === category)
+      // Sort by display_order when filtering by category
+      filtered = filtered.sort((a, b) => a.display_order - b.display_order)
     }
 
     if (type !== 'all') {
@@ -71,22 +73,22 @@ export function ResourcesManager({ initialResources }: ResourcesManagerProps) {
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value)
-    applyFilters(value, categoryFilter, typeFilter, statusFilter)
+    applyFilters(resources, value, categoryFilter, typeFilter, statusFilter)
   }
 
   const handleCategoryChange = (value: string) => {
     setCategoryFilter(value)
-    applyFilters(searchTerm, value, typeFilter, statusFilter)
+    applyFilters(resources, searchTerm, value, typeFilter, statusFilter)
   }
 
   const handleTypeChange = (value: string) => {
     setTypeFilter(value)
-    applyFilters(searchTerm, categoryFilter, value, statusFilter)
+    applyFilters(resources, searchTerm, categoryFilter, value, statusFilter)
   }
 
   const handleStatusChange = (value: string) => {
     setStatusFilter(value)
-    applyFilters(searchTerm, categoryFilter, typeFilter, value)
+    applyFilters(resources, searchTerm, categoryFilter, typeFilter, value)
   }
 
   const handleAddNew = () => {
@@ -116,7 +118,7 @@ export function ResourcesManager({ initialResources }: ResourcesManagerProps) {
       // Refresh the list
       const updatedResources = resources.filter(r => r.id !== id)
       setResources(updatedResources)
-      applyFilters(searchTerm, categoryFilter, typeFilter, statusFilter)
+      applyFilters(updatedResources, searchTerm, categoryFilter, typeFilter, statusFilter)
     } catch (error) {
       console.error('Error deleting resource:', error)
       alert('Failed to delete resource')
@@ -136,9 +138,92 @@ export function ResourcesManager({ initialResources }: ResourcesManagerProps) {
     }
 
     setResources(updatedResources)
-    applyFilters(searchTerm, categoryFilter, typeFilter, statusFilter)
+    applyFilters(updatedResources, searchTerm, categoryFilter, typeFilter, statusFilter)
     setShowModal(false)
   }
+
+  const handleMoveUp = async (index: number) => {
+    if (index === 0) return
+
+    const currentResource = filteredResources[index]
+    const prevResource = filteredResources[index - 1]
+
+    // Swap display_order values
+    const currentOrder = currentResource.display_order
+    const prevOrder = prevResource.display_order
+
+    try {
+      // Update both resources in the database
+      await Promise.all([
+        fetch(`/api/admin/resources/${currentResource.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...currentResource, display_order: prevOrder })
+        }),
+        fetch(`/api/admin/resources/${prevResource.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...prevResource, display_order: currentOrder })
+        })
+      ])
+
+      // Update local state
+      const updatedResources = resources.map(r => {
+        if (r.id === currentResource.id) return { ...r, display_order: prevOrder }
+        if (r.id === prevResource.id) return { ...r, display_order: currentOrder }
+        return r
+      })
+
+      setResources(updatedResources)
+      applyFilters(updatedResources, searchTerm, categoryFilter, typeFilter, statusFilter)
+    } catch (error) {
+      console.error('Error moving resource:', error)
+      alert('Failed to move resource')
+    }
+  }
+
+  const handleMoveDown = async (index: number) => {
+    if (index === filteredResources.length - 1) return
+
+    const currentResource = filteredResources[index]
+    const nextResource = filteredResources[index + 1]
+
+    // Swap display_order values
+    const currentOrder = currentResource.display_order
+    const nextOrder = nextResource.display_order
+
+    try {
+      // Update both resources in the database
+      await Promise.all([
+        fetch(`/api/admin/resources/${currentResource.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...currentResource, display_order: nextOrder })
+        }),
+        fetch(`/api/admin/resources/${nextResource.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...nextResource, display_order: currentOrder })
+        })
+      ])
+
+      // Update local state
+      const updatedResources = resources.map(r => {
+        if (r.id === currentResource.id) return { ...r, display_order: nextOrder }
+        if (r.id === nextResource.id) return { ...r, display_order: currentOrder }
+        return r
+      })
+
+      setResources(updatedResources)
+      applyFilters(updatedResources, searchTerm, categoryFilter, typeFilter, statusFilter)
+    } catch (error) {
+      console.error('Error moving resource:', error)
+      alert('Failed to move resource')
+    }
+  }
+
+  // Check if ordering is enabled (only when category is filtered)
+  const showOrderControls = categoryFilter !== 'all'
 
   return (
     <div>
@@ -202,6 +287,13 @@ export function ResourcesManager({ initialResources }: ResourcesManagerProps) {
           </button>
         </div>
 
+        {/* Ordering hint */}
+        {showOrderControls && (
+          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg text-sm text-blue-800 dark:text-blue-200">
+            Use the up/down arrows to reorder listings within this category.
+          </div>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div>
@@ -264,12 +356,17 @@ export function ResourcesManager({ initialResources }: ResourcesManagerProps) {
                   </td>
                 </tr>
               ) : (
-                filteredResources.map(resource => (
+                filteredResources.map((resource, index) => (
                   <ResourceRow
                     key={resource.id}
                     resource={resource}
                     onEdit={() => handleEdit(resource)}
                     onDelete={() => handleDelete(resource.id)}
+                    onMoveUp={() => handleMoveUp(index)}
+                    onMoveDown={() => handleMoveDown(index)}
+                    isFirst={index === 0}
+                    isLast={index === filteredResources.length - 1}
+                    showOrder={showOrderControls}
                   />
                 ))
               )}

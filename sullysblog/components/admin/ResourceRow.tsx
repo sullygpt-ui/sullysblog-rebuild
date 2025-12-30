@@ -6,6 +6,11 @@ type ResourceRowProps = {
   resource: Resource
   onEdit: () => void
   onDelete: () => void
+  onMoveUp?: () => void
+  onMoveDown?: () => void
+  isFirst?: boolean
+  isLast?: boolean
+  showOrder?: boolean
 }
 
 // Category labels for display (alphabetical order)
@@ -32,7 +37,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   'registration': 'Registration',
 }
 
-export function ResourceRow({ resource, onEdit, onDelete }: ResourceRowProps) {
+export function ResourceRow({ resource, onEdit, onDelete, onMoveUp, onMoveDown, isFirst, isLast, showOrder }: ResourceRowProps) {
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'featured':
@@ -142,6 +147,30 @@ export function ResourceRow({ resource, onEdit, onDelete }: ResourceRowProps) {
       </td>
       <td className="px-6 py-4 text-right text-sm">
         <div className="flex items-center justify-end gap-2">
+          {showOrder && (
+            <>
+              <button
+                onClick={onMoveUp}
+                disabled={isFirst}
+                className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 disabled:opacity-30 disabled:cursor-not-allowed"
+                title="Move up"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+              <button
+                onClick={onMoveDown}
+                disabled={isLast}
+                className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 disabled:opacity-30 disabled:cursor-not-allowed"
+                title="Move down"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </>
+          )}
           <a
             href={`/go/${resource.redirect_slug}`}
             target="_blank"

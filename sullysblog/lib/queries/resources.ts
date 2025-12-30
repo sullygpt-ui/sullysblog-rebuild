@@ -64,7 +64,8 @@ export async function getResourcesByCategory(): Promise<ResourcesByCategory> {
     .select('*')
     .in('status', ['active', 'grace_period'])
     .order('listing_type', { ascending: false }) // featured > sponsored > free
-    .order('name', { ascending: true }) // alphabetical within each listing type
+    .order('display_order', { ascending: true }) // custom order within each listing type
+    .order('name', { ascending: true }) // alphabetical as fallback
 
   if (error) {
     console.error('Error fetching resources:', error)

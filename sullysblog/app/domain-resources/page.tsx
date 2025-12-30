@@ -118,11 +118,16 @@ export default async function DomainResourcesPage() {
                   return null
                 }
 
-                // Separate by listing type and sort alphabetically within each
-                const sortByName = (a: any, b: any) => a.name.localeCompare(b.name)
-                const featured = categoryData.listings.filter(r => r.listing_type === 'featured').sort(sortByName)
-                const sponsored = categoryData.listings.filter(r => r.listing_type === 'sponsored').sort(sortByName)
-                const free = categoryData.listings.filter(r => r.listing_type === 'free').sort(sortByName)
+                // Separate by listing type and sort by display_order, then alphabetically
+                const sortByOrder = (a: any, b: any) => {
+                  if (a.display_order !== b.display_order) {
+                    return a.display_order - b.display_order
+                  }
+                  return a.name.localeCompare(b.name)
+                }
+                const featured = categoryData.listings.filter(r => r.listing_type === 'featured').sort(sortByOrder)
+                const sponsored = categoryData.listings.filter(r => r.listing_type === 'sponsored').sort(sortByOrder)
+                const free = categoryData.listings.filter(r => r.listing_type === 'free').sort(sortByOrder)
 
                 return (
                   <div key={category.id} id={category.id} className="scroll-mt-20">
