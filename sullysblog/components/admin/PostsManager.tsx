@@ -12,7 +12,7 @@ type Post = {
   published_at: string | null
   view_count: number
   created_at: string
-  category: { name: string }[] | null
+  categories: { id: string; name: string }[]
 }
 
 type PostsManagerProps = {
@@ -290,10 +290,17 @@ export function PostsManager({ initialPosts }: PostsManagerProps) {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      {post.category?.[0] ? (
-                        <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                          {post.category[0].name}
-                        </span>
+                      {post.categories.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {post.categories.map(cat => (
+                            <span
+                              key={cat.id}
+                              className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                            >
+                              {cat.name}
+                            </span>
+                          ))}
+                        </div>
                       ) : (
                         <span className="text-sm text-gray-400">No category</span>
                       )}

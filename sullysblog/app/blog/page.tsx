@@ -106,11 +106,18 @@ export default async function BlogPage({ searchParams }: Props) {
 
                     {/* Post Info */}
                     <div className="p-4">
-                      {/* Category Badge */}
-                      {post.category && (
-                        <span className="inline-block px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full mb-2">
-                          {post.category.name}
-                        </span>
+                      {/* Category Badges */}
+                      {post.categories && post.categories.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {post.categories.map(category => (
+                            <span
+                              key={category.id}
+                              className="inline-block px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full"
+                            >
+                              {category.name}
+                            </span>
+                          ))}
+                        </div>
                       )}
 
                       {/* Title */}

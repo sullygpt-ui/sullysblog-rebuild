@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       content,
       excerpt,
       featured_image_url,
-      category_id,
+      category_ids,
       status,
       published_at,
       meta_title,
@@ -77,11 +77,12 @@ export async function POST(request: NextRequest) {
         content,
         excerpt: excerpt || null,
         featured_image_url: featured_image_url || null,
-        category_id: category_id || null,
+        category_id: null, // Legacy field - we use junction table now
         status: status || 'draft',
         published_at: published_at || null,
         seo_title: meta_title || null,
         seo_description: meta_description || null,
+        seo_keywords: meta_keywords || null,
         author_id: authorId
       })
       .select()
@@ -93,6 +94,23 @@ export async function POST(request: NextRequest) {
         { error: createError.message },
         { status: 500 }
       )
+    }
+
+    // Save categories to junction table
+    if (category_ids && category_ids.length > 0) {
+      const categoryLinks = category_ids.map((categoryId: string) => ({
+        post_id: post.id,
+        category_id: categoryId
+      }))
+
+      const { error: categoryError } = await adminClient
+        .from('post_categories')
+        .insert(categoryLinks)
+
+      if (categoryError) {
+        console.error('Error saving categories:', categoryError)
+        // Don't fail the whole request, just log the error
+      }
     }
 
     return NextResponse.json({ success: true, post })

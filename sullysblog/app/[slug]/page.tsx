@@ -43,6 +43,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = post.seo_title || `${post.title} - SullysBlog.com`
   const description = post.seo_description || post.excerpt || `Read ${post.title} on SullysBlog.com`
   const url = `https://sullysblog.com/${post.slug}`
+  const categoryNames = post.categories.map(c => c.name).join(', ')
+  const keywords = post.seo_keywords || categoryNames || 'Domain Investing'
 
   return {
     title,
@@ -64,7 +66,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       publishedTime: post.published_at || undefined,
       modifiedTime: post.updated_at,
       authors: ['Michael Sullivan'],
-      section: post.category?.name || 'Domain Investing',
+      section: post.categories[0]?.name || 'Domain Investing',
       url
     },
     twitter: {
@@ -77,7 +79,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: {
       canonical: url
     },
-    keywords: post.category?.name,
+    keywords,
     robots: {
       index: true,
       follow: true,
@@ -110,9 +112,12 @@ export default async function PostPage({ params }: Props) {
   const supabase = await createClient()
   supabase.rpc('increment_post_views', { post_slug: slug })
 
+  // Get category IDs for related posts
+  const categoryIds = post.categories.map(c => c.id)
+
   // Fetch related data in parallel for performance
   const [relatedPosts, comments] = await Promise.all([
-    getRelatedPosts(post.category_id, post.id, 4),
+    getRelatedPosts(categoryIds, post.id, 4),
     getCommentsByPostId(post.id)
   ])
 
@@ -126,6 +131,7 @@ export default async function PostPage({ params }: Props) {
   const hasSponsorAds = (sponsorAdsCount ?? 0) > 0
 
   const baseUrl = 'https://sullysblog.com'
+  const primaryCategory = post.categories[0]
 
   return (
     <>
@@ -137,13 +143,13 @@ export default async function PostPage({ params }: Props) {
         datePublished={post.published_at || post.created_at}
         dateModified={post.updated_at}
         authorName="Michael Sullivan"
-        categoryName={post.category?.name}
+        categoryName={primaryCategory?.name}
       />
       <BreadcrumbJsonLd
         items={[
           { name: 'Home', url: baseUrl },
           { name: 'Blog', url: `${baseUrl}/blog` },
-          ...(post.category ? [{ name: post.category.name, url: `${baseUrl}/category/${post.category.slug}` }] : []),
+          ...(primaryCategory ? [{ name: primaryCategory.name, url: `${baseUrl}/category/${primaryCategory.slug}` }] : []),
           { name: post.title, url: `${baseUrl}/${post.slug}` },
         ]}
       />

@@ -54,7 +54,7 @@ export default async function Home() {
   const supabase = await createClient()
 
   // Fetch recent published posts
-  const { data: recentPosts } = await supabase
+  const { data: recentPostsData } = await supabase
     .from('posts')
     .select(`
       id,
@@ -63,12 +63,35 @@ export default async function Home() {
       excerpt,
       featured_image_url,
       published_at,
-      view_count,
-      category:categories(name, slug)
+      view_count
     `)
     .eq('status', 'published')
     .order('published_at', { ascending: false })
     .limit(6)
+
+  // Fetch categories for posts via junction table
+  const postIds = recentPostsData?.map(p => p.id) || []
+  const { data: postCategories } = postIds.length > 0 ? await supabase
+    .from('post_categories')
+    .select('post_id, category:categories(id, name, slug)')
+    .in('post_id', postIds) : { data: null }
+
+  // Build a map of post_id -> categories
+  type CategoryInfo = { id: string; name: string; slug: string }
+  const categoryMap = new Map<string, CategoryInfo[]>()
+  postCategories?.forEach(pc => {
+    const existing = categoryMap.get(pc.post_id) || []
+    const cat = pc.category as unknown as CategoryInfo | null
+    if (cat && cat.id) {
+      existing.push(cat)
+    }
+    categoryMap.set(pc.post_id, existing)
+  })
+
+  const recentPosts = recentPostsData?.map(post => ({
+    ...post,
+    categories: categoryMap.get(post.id) || []
+  }))
 
   // Fetch some featured dictionary terms
   const { data: featuredTerms } = await supabase
@@ -150,13 +173,18 @@ export default async function Home() {
                         )}
                       </div>
                       <div className="p-4 md:py-3 md:w-2/3">
-                        {post.category?.[0] && (
-                          <Link
-                            href={`/category/${post.category[0].slug}`}
-                            className="inline-block mb-2 text-sm font-medium text-blue-400 hover:underline"
-                          >
-                            {post.category[0].name}
-                          </Link>
+                        {post.categories.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {post.categories.map(category => (
+                              <Link
+                                key={category.id}
+                                href={`/category/${category.slug}`}
+                                className="text-sm font-medium text-blue-400 hover:underline"
+                              >
+                                {category.name}
+                              </Link>
+                            ))}
+                          </div>
                         )}
                         <h3 className="text-2xl font-bold text-white mb-3">
                           <Link href={`/${post.slug}`} className="hover:text-blue-400 transition-colors">

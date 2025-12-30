@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { PostWithCategory } from '@/lib/queries/posts'
+import { PostWithCategories } from '@/lib/queries/posts'
 import { PlaceholderImage } from '@/components/ui/PlaceholderImage'
 
 type RelatedPostsProps = {
-  posts: PostWithCategory[]
+  posts: PostWithCategories[]
 }
 
 export function RelatedPosts({ posts }: RelatedPostsProps) {

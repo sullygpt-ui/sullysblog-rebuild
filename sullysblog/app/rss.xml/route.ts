@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET() {
   const supabase = await createClient()
 
-  // Fetch recent published posts with categories
+  // Fetch recent published posts
   const { data: posts } = await supabase
     .from('posts')
     .select('*')
@@ -16,21 +16,28 @@ export async function GET() {
     return new NextResponse('Error fetching posts', { status: 500 })
   }
 
-  // Fetch categories for posts
-  const postsWithCategories = await Promise.all(
-    posts.map(async (post) => {
-      let category = null
-      if (post.category_id) {
-        const { data: categoryData } = await supabase
-          .from('categories')
-          .select('*')
-          .eq('id', post.category_id)
-          .single()
-        category = categoryData
-      }
-      return { ...post, category }
-    })
-  )
+  // Fetch categories for posts via junction table
+  const postIds = posts.map(p => p.id)
+  const { data: postCategories } = await supabase
+    .from('post_categories')
+    .select('post_id, category:categories(name)')
+    .in('post_id', postIds)
+
+  // Build a map of post_id -> categories
+  const categoryMap = new Map<string, string[]>()
+  postCategories?.forEach(pc => {
+    const existing = categoryMap.get(pc.post_id) || []
+    const cat = pc.category as unknown as { name: string } | null
+    if (cat && cat.name) {
+      existing.push(cat.name)
+    }
+    categoryMap.set(pc.post_id, existing)
+  })
+
+  const postsWithCategories = posts.map(post => ({
+    ...post,
+    categories: categoryMap.get(post.id) || []
+  }))
 
   // Generate RSS XML
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
@@ -68,7 +75,7 @@ ${postsWithCategories.map(post => {
   const link = `https://sullysblog.com/${post.slug}`
   const description = post.excerpt ? escapeXml(post.excerpt) : escapeXml(post.title)
   const pubDate = post.published_at ? new Date(post.published_at).toUTCString() : new Date().toUTCString()
-  const category = post.category?.name ? escapeXml(post.category.name) : 'Uncategorized'
+  const categoryNames = post.categories.length > 0 ? post.categories.map((c: string) => escapeXml(c)).join(', ') : 'Uncategorized'
 
   // Clean content for CDATA
   const content = post.content || ''
@@ -81,7 +88,7 @@ ${postsWithCategories.map(post => {
       <content:encoded><![CDATA[${content}]]></content:encoded>
       <pubDate>${pubDate}</pubDate>
       <dc:creator>Michael Sullivan</dc:creator>
-      <category>${category}</category>
+      <category>${categoryNames}</category>
     </item>`
 }).join('\n')}
   </channel>

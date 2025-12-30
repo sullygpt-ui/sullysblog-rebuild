@@ -19,7 +19,7 @@ export interface Database {
           excerpt: string | null
           featured_image_url: string | null
           author_id: string
-          category_id: string | null
+          category_id: string | null // Legacy field - use post_categories for new posts
           status: 'draft' | 'scheduled' | 'published'
           published_at: string | null
           created_at: string
@@ -27,11 +27,22 @@ export interface Database {
           view_count: number
           seo_title: string | null
           seo_description: string | null
+          seo_keywords: string | null
           wordpress_id: number | null
           wordpress_url: string | null
         }
         Insert: Omit<Database['public']['Tables']['posts']['Row'], 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Database['public']['Tables']['posts']['Insert']>
+      }
+      post_categories: {
+        Row: {
+          id: string
+          post_id: string
+          category_id: string
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['post_categories']['Row'], 'id' | 'created_at'>
+        Update: Partial<Database['public']['Tables']['post_categories']['Insert']>
       }
       categories: {
         Row: {

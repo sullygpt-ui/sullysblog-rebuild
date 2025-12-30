@@ -22,11 +22,19 @@ export default async function EditPostPage({
     notFound()
   }
 
-  // Fetch categories for the dropdown
+  // Fetch categories for the multi-select
   const { data: categories } = await supabase
     .from('categories')
     .select('id, name')
     .order('name')
+
+  // Fetch post's categories from junction table
+  const { data: postCategories } = await supabase
+    .from('post_categories')
+    .select('category_id')
+    .eq('post_id', id)
+
+  const categoryIds = (postCategories || []).map(pc => pc.category_id)
 
   const formData: PostFormData = {
     id: post.id,
@@ -35,12 +43,12 @@ export default async function EditPostPage({
     content: post.content,
     excerpt: post.excerpt,
     featured_image_url: post.featured_image_url,
-    category_id: post.category_id,
+    category_ids: categoryIds,
     status: post.status,
     published_at: post.published_at,
     meta_title: post.seo_title,
     meta_description: post.seo_description,
-    meta_keywords: null, // Column doesn't exist in DB
+    meta_keywords: post.seo_keywords,
   }
 
   return (

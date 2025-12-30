@@ -5,8 +5,8 @@ import { PostsManager } from '@/components/admin/PostsManager'
 export default async function PostsPage() {
   const supabase = createAdminClient()
 
-  // Fetch all posts with categories (including drafts and scheduled)
-  const { data: posts } = await supabase
+  // Fetch all posts (including drafts and scheduled)
+  const { data: postsData } = await supabase
     .from('posts')
     .select(`
       id,
@@ -15,10 +15,33 @@ export default async function PostsPage() {
       status,
       published_at,
       view_count,
-      created_at,
-      category:categories(name)
+      created_at
     `)
     .order('created_at', { ascending: false })
+
+  // Fetch categories for all posts via junction table
+  const postIds = postsData?.map(p => p.id) || []
+  const { data: postCategories } = postIds.length > 0 ? await supabase
+    .from('post_categories')
+    .select('post_id, category:categories(id, name)')
+    .in('post_id', postIds) : { data: null }
+
+  // Build a map of post_id -> categories
+  type CategoryInfo = { id: string; name: string }
+  const categoryMap = new Map<string, CategoryInfo[]>()
+  postCategories?.forEach(pc => {
+    const existing = categoryMap.get(pc.post_id) || []
+    const cat = pc.category as unknown as CategoryInfo | null
+    if (cat && cat.id) {
+      existing.push(cat)
+    }
+    categoryMap.set(pc.post_id, existing)
+  })
+
+  const posts = postsData?.map(post => ({
+    ...post,
+    categories: categoryMap.get(post.id) || []
+  }))
 
   return (
     <div className="space-y-6">

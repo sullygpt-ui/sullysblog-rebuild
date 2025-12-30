@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { RichTextEditor } from '@/components/editor/RichTextEditor'
 
 export type PostFormData = {
@@ -12,7 +11,7 @@ export type PostFormData = {
   content: string
   excerpt: string | null
   featured_image_url: string | null
-  category_id: string | null
+  category_ids: string[]
   status: 'draft' | 'scheduled' | 'published'
   published_at: string | null
   meta_title: string | null
@@ -31,6 +30,7 @@ export function PostForm({ initialData, mode, categories }: PostFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [generatingSeo, setGeneratingSeo] = useState(false)
   const featuredImageRef = useRef<HTMLInputElement>(null)
   const [currentTime, setCurrentTime] = useState(new Date())
 
@@ -48,7 +48,7 @@ export function PostForm({ initialData, mode, categories }: PostFormProps) {
     content: '',
     excerpt: null,
     featured_image_url: null,
-    category_id: null,
+    category_ids: [],
     status: 'draft',
     published_at: null,
     meta_title: null,
@@ -66,6 +66,16 @@ export function PostForm({ initialData, mode, categories }: PostFormProps) {
         ? title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
         : formData.slug
     })
+  }
+
+  // Handle category toggle
+  const handleCategoryToggle = (categoryId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      category_ids: prev.category_ids.includes(categoryId)
+        ? prev.category_ids.filter(id => id !== categoryId)
+        : [...prev.category_ids, categoryId]
+    }))
   }
 
   // Handle status changes with appropriate published_at logic
@@ -127,6 +137,45 @@ export function PostForm({ initialData, mode, categories }: PostFormProps) {
     setFormData({ ...formData, featured_image_url: null })
     if (featuredImageRef.current) {
       featuredImageRef.current.value = ''
+    }
+  }
+
+  // Generate SEO with AI
+  const handleGenerateSeo = async () => {
+    if (!formData.title || !formData.content) {
+      setError('Please add a title and content before generating SEO')
+      return
+    }
+
+    setGeneratingSeo(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/admin/generate-seo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: formData.title,
+          content: formData.content
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to generate SEO')
+      }
+
+      setFormData({
+        ...formData,
+        meta_title: result.meta_title,
+        meta_description: result.meta_description,
+        meta_keywords: result.meta_keywords
+      })
+    } catch (err: any) {
+      setError(err.message || 'Failed to generate SEO')
+    } finally {
+      setGeneratingSeo(false)
     }
   }
 
@@ -232,27 +281,62 @@ export function PostForm({ initialData, mode, categories }: PostFormProps) {
           />
         </div>
 
-        {/* Category and Status */}
-        <div className="grid grid-cols-2 gap-4">
+        {/* Categories and Status */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Categories Multi-Select */}
           <div>
-            <label htmlFor="category_id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Category
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Categories
             </label>
-            <select
-              id="category_id"
-              value={formData.category_id || ''}
-              onChange={(e) => setFormData({ ...formData, category_id: e.target.value || null })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">No category</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+            <div className="border border-gray-300 dark:border-gray-700 rounded-md p-3 max-h-48 overflow-y-auto bg-white dark:bg-gray-900">
+              {categories.length === 0 ? (
+                <p className="text-sm text-gray-500 dark:text-gray-400">No categories available</p>
+              ) : (
+                <div className="space-y-2">
+                  {categories.map((category) => (
+                    <label
+                      key={category.id}
+                      className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-1 rounded"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={formData.category_ids.includes(category.id)}
+                        onChange={() => handleCategoryToggle(category.id)}
+                        className="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{category.name}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+            {formData.category_ids.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {formData.category_ids.map(id => {
+                  const cat = categories.find(c => c.id === id)
+                  return cat ? (
+                    <span
+                      key={id}
+                      className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded"
+                    >
+                      {cat.name}
+                      <button
+                        type="button"
+                        onClick={() => handleCategoryToggle(id)}
+                        className="hover:text-blue-600 dark:hover:text-blue-100"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </span>
+                  ) : null
+                })}
+              </div>
+            )}
           </div>
 
+          {/* Status */}
           <div>
             <label htmlFor="status" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Status *
@@ -449,7 +533,32 @@ export function PostForm({ initialData, mode, categories }: PostFormProps) {
 
       {/* SEO Settings */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6 space-y-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">SEO Settings</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">SEO Settings</h3>
+          <button
+            type="button"
+            onClick={handleGenerateSeo}
+            disabled={generatingSeo || !formData.title || !formData.content}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white rounded-lg transition-colors disabled:cursor-not-allowed"
+          >
+            {generatingSeo ? (
+              <>
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Generating...
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Generate with AI
+              </>
+            )}
+          </button>
+        </div>
 
         {/* Meta Title */}
         <div>
@@ -464,6 +573,9 @@ export function PostForm({ initialData, mode, categories }: PostFormProps) {
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Custom title for search engines (defaults to post title)"
           />
+          <p className="mt-1 text-xs text-gray-500">
+            {formData.meta_title?.length || 0}/60 characters (recommended: 50-60)
+          </p>
         </div>
 
         {/* Meta Description */}
@@ -479,6 +591,9 @@ export function PostForm({ initialData, mode, categories }: PostFormProps) {
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Description for search engines (optional)"
           />
+          <p className="mt-1 text-xs text-gray-500">
+            {formData.meta_description?.length || 0}/160 characters (recommended: 150-160)
+          </p>
         </div>
 
         {/* Meta Keywords */}

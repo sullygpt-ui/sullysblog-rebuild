@@ -4,11 +4,84 @@ import { Database } from '@/lib/types/database'
 type Post = Database['public']['Tables']['posts']['Row']
 type Category = Database['public']['Tables']['categories']['Row']
 
-export type PostWithCategory = Post & {
-  category: Category | null
+export type PostWithCategories = Post & {
+  categories: Category[]
 }
 
-export async function getPostBySlug(slug: string): Promise<PostWithCategory | null> {
+// Helper to load categories for a post via junction table
+async function loadCategoriesForPost(supabase: any, postId: string): Promise<Category[]> {
+  const { data: postCategories } = await supabase
+    .from('post_categories')
+    .select('category_id')
+    .eq('post_id', postId)
+
+  if (!postCategories || postCategories.length === 0) {
+    return []
+  }
+
+  const categoryIds = postCategories.map((pc: any) => pc.category_id)
+  const { data: categories } = await supabase
+    .from('categories')
+    .select('*')
+    .in('id', categoryIds)
+    .order('name')
+
+  return categories || []
+}
+
+// Helper to batch load categories for multiple posts
+async function loadCategoriesForPosts(supabase: any, postIds: string[]): Promise<Map<string, Category[]>> {
+  if (postIds.length === 0) {
+    return new Map()
+  }
+
+  // Get all post_categories for these posts
+  const { data: postCategories } = await supabase
+    .from('post_categories')
+    .select('post_id, category_id')
+    .in('post_id', postIds)
+
+  if (!postCategories || postCategories.length === 0) {
+    return new Map()
+  }
+
+  // Get unique category IDs
+  const categoryIds = [...new Set(postCategories.map((pc: any) => pc.category_id))]
+
+  // Fetch all categories at once
+  const { data: categoriesData } = await supabase
+    .from('categories')
+    .select('*')
+    .in('id', categoryIds)
+
+  if (!categoriesData) {
+    return new Map()
+  }
+
+  const categories = categoriesData as Category[]
+  const categoryMap = new Map(categories.map((c) => [c.id, c]))
+
+  // Build map of post_id -> categories
+  const result = new Map<string, Category[]>()
+  for (const pc of postCategories) {
+    const category = categoryMap.get(pc.category_id)
+    if (category) {
+      if (!result.has(pc.post_id)) {
+        result.set(pc.post_id, [])
+      }
+      result.get(pc.post_id)!.push(category)
+    }
+  }
+
+  // Sort categories by name for each post
+  for (const [postId, cats] of result) {
+    result.set(postId, cats.sort((a, b) => a.name.localeCompare(b.name)))
+  }
+
+  return result
+}
+
+export async function getPostBySlug(slug: string): Promise<PostWithCategories | null> {
   const supabase = await createClient()
 
   // Fetch post
@@ -23,42 +96,46 @@ export async function getPostBySlug(slug: string): Promise<PostWithCategory | nu
     return null
   }
 
-  // Fetch category manually (relationship syntax doesn't work)
-  let category = null
-  if (post.category_id) {
-    const { data: categoryData } = await supabase
-      .from('categories')
-      .select('*')
-      .eq('id', post.category_id)
-      .single()
-
-    category = categoryData
-  }
+  // Fetch categories via junction table
+  const categories = await loadCategoriesForPost(supabase, post.id)
 
   return {
     ...post,
-    category
+    categories
   }
 }
 
 export async function getRelatedPosts(
-  categoryId: string | null,
+  categoryIds: string[],
   currentPostId: string,
   limit: number = 4
-): Promise<PostWithCategory[]> {
-  if (!categoryId) {
+): Promise<PostWithCategories[]> {
+  if (!categoryIds || categoryIds.length === 0) {
     return []
   }
 
   const supabase = await createClient()
 
-  // Fetch related posts from same category
+  // Find posts that share any of the same categories
+  const { data: relatedPostCategories } = await supabase
+    .from('post_categories')
+    .select('post_id')
+    .in('category_id', categoryIds)
+    .neq('post_id', currentPostId)
+
+  if (!relatedPostCategories || relatedPostCategories.length === 0) {
+    return []
+  }
+
+  // Get unique post IDs
+  const postIds = [...new Set(relatedPostCategories.map((pc: any) => pc.post_id))]
+
+  // Fetch related posts
   const { data: posts } = await supabase
     .from('posts')
-    .select('id, slug, title, excerpt, featured_image_url, published_at, category_id')
-    .eq('category_id', categoryId)
+    .select('*')
+    .in('id', postIds)
     .eq('status', 'published')
-    .neq('id', currentPostId)
     .order('published_at', { ascending: false })
     .limit(limit)
 
@@ -66,34 +143,19 @@ export async function getRelatedPosts(
     return []
   }
 
-  // Fetch category for display
-  const { data: category } = await supabase
-    .from('categories')
-    .select('*')
-    .eq('id', categoryId)
-    .single()
+  // Load categories for these posts
+  const categoriesMap = await loadCategoriesForPosts(supabase, posts.map(p => p.id))
 
   return posts.map(post => ({
     ...post,
-    // Fill in required fields with defaults for the type
-    content: '',
-    author_id: '',
-    status: 'published' as const,
-    created_at: post.published_at || new Date().toISOString(),
-    updated_at: post.published_at || new Date().toISOString(),
-    view_count: 0,
-    seo_title: null,
-    seo_description: null,
-    wordpress_id: null,
-    wordpress_url: null,
-    category
+    categories: categoriesMap.get(post.id) || []
   }))
 }
 
 export async function getAllPosts(
   page: number = 1,
   perPage: number = 12
-): Promise<{ posts: PostWithCategory[], total: number }> {
+): Promise<{ posts: PostWithCategories[], total: number }> {
   const supabase = await createClient()
   const offset = (page - 1) * perPage
 
@@ -109,26 +171,13 @@ export async function getAllPosts(
     return { posts: [], total: 0 }
   }
 
-  // Get unique category IDs
-  const categoryIds = [...new Set(posts.map(p => p.category_id).filter(Boolean))] as string[]
-
-  // Fetch all categories at once
-  let categoryMap = new Map<string, Category>()
-  if (categoryIds.length > 0) {
-    const { data: categories } = await supabase
-      .from('categories')
-      .select('*')
-      .in('id', categoryIds)
-
-    if (categories) {
-      categoryMap = new Map(categories.map(c => [c.id, c]))
-    }
-  }
+  // Load categories for all posts
+  const categoriesMap = await loadCategoriesForPosts(supabase, posts.map(p => p.id))
 
   // Combine posts with categories
   const postsWithCategories = posts.map(post => ({
     ...post,
-    category: post.category_id ? (categoryMap.get(post.category_id) || null) : null
+    categories: categoriesMap.get(post.id) || []
   }))
 
   return {

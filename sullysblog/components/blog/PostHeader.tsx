@@ -1,10 +1,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { PostWithCategory } from '@/lib/queries/posts'
+import { PostWithCategories } from '@/lib/queries/posts'
 import { PlaceholderImage } from '@/components/ui/PlaceholderImage'
 
 type PostHeaderProps = {
-  post: PostWithCategory
+  post: PostWithCategories
 }
 
 export function PostHeader({ post }: PostHeaderProps) {
@@ -54,15 +54,20 @@ export function PostHeader({ post }: PostHeaderProps) {
           </time>
         )}
 
-        {post.category && (
+        {post.categories && post.categories.length > 0 && (
           <>
             <span className="text-gray-400">•</span>
-            <Link
-              href={`/category/${post.category.slug}`}
-              className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition"
-            >
-              {post.category.name}
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              {post.categories.map(category => (
+                <Link
+                  key={category.id}
+                  href={`/category/${category.slug}`}
+                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition"
+                >
+                  {category.name}
+                </Link>
+              ))}
+            </div>
           </>
         )}
 
