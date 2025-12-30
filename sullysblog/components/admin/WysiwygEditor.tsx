@@ -241,18 +241,20 @@ export function WysiwygEditor({ content, onChange }: WysiwygEditorProps) {
           </svg>
         </button>
 
-        {editor.isActive('link') && (
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().unsetLink().run()}
-            className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-red-500"
-            title="Remove Link"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().unsetLink().run()}
+          disabled={!editor.isActive('link')}
+          className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed ${
+            editor.isActive('link') ? 'text-red-500' : ''
+          }`}
+          title="Remove Link"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 6L6 18" />
+          </svg>
+        </button>
 
         <button
           type="button"
