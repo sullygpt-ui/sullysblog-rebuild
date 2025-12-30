@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
+import { sendEmail } from '@/lib/email/sender'
+import { getPurchaseConfirmation } from '@/lib/email/templates'
+
+// Ensure raw body is available for signature verification
+export const runtime = 'nodejs'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-12-15.clover',
@@ -156,11 +161,52 @@ export async function POST(request: NextRequest) {
         }
       }
 
+      // Send purchase confirmation email
+      const customerEmail = session.customer_email
+      if (customerEmail) {
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://sullysblog.com'
+        const emailTemplate = getPurchaseConfirmation({
+          customerEmail,
+          productName: productName || 'Your purchase',
+          orderNumber,
+          downloadUrl: `${siteUrl}/store/orders`,
+          siteUrl,
+        })
+
+        await sendEmail({
+          to: customerEmail,
+          subject: emailTemplate.subject,
+          html: emailTemplate.html,
+        })
+        console.log('Purchase confirmation email sent to:', customerEmail)
+      }
+
       console.log('Order created:', orderNumber)
     } catch (error) {
       console.error('Error processing checkout completion:', error)
       return NextResponse.json({ error: 'Processing error' }, { status: 500 })
     }
+  }
+
+  // Handle payment_intent.succeeded as backup (in case checkout.session.completed is missed)
+  if (event.type === 'payment_intent.succeeded') {
+    const paymentIntent = event.data.object as Stripe.PaymentIntent
+    console.log('Payment intent succeeded:', paymentIntent.id)
+
+    // Check if order already exists (from checkout.session.completed)
+    const { data: existingOrder } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('stripe_payment_intent_id', paymentIntent.id)
+      .single()
+
+    if (existingOrder) {
+      console.log('Order already processed via checkout.session.completed')
+      return NextResponse.json({ received: true })
+    }
+
+    // If no order exists, log a warning (shouldn't happen normally)
+    console.warn('Payment succeeded but no matching order found. Payment intent:', paymentIntent.id)
   }
 
   return NextResponse.json({ received: true })

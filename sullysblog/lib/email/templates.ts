@@ -1,6 +1,70 @@
 /**
- * Email Templates for Resource Expiration Notifications
+ * Email Templates for Resource Expiration Notifications and Purchase Confirmations
  */
+
+// Purchase Confirmation Email
+type PurchaseEmailData = {
+  customerEmail: string
+  productName: string
+  orderNumber: string
+  downloadUrl: string
+  siteUrl: string
+}
+
+export function getPurchaseConfirmation(data: PurchaseEmailData) {
+  return {
+    subject: `Your purchase: ${data.productName}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+            .success-box { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; }
+            .button { display: inline-block; background: #28a745; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+            .order-details { background: #fff; padding: 15px; border-radius: 5px; margin: 20px 0; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Thank You for Your Purchase!</h1>
+            </div>
+            <div class="content">
+              <div class="success-box">
+                Your order has been confirmed and your download is ready.
+              </div>
+
+              <div class="order-details">
+                <p><strong>Order Number:</strong> ${data.orderNumber}</p>
+                <p><strong>Product:</strong> ${data.productName}</p>
+              </div>
+
+              <p>Click the button below to access your purchase:</p>
+
+              <p style="text-align: center;">
+                <a href="${data.downloadUrl}" class="button">Download Now</a>
+              </p>
+
+              <p>You can also access your purchases anytime by logging into your account at <a href="${data.siteUrl}/store/orders">${data.siteUrl}/store/orders</a>.</p>
+
+              <p>If you have any questions, just reply to this email.</p>
+
+              <p>Best regards,<br>SullysBlog Team</p>
+            </div>
+            <div class="footer">
+              <p>You're receiving this because you made a purchase at SullysBlog.com</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `
+  }
+}
 
 type EmailData = {
   resourceName: string
