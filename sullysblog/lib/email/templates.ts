@@ -11,6 +11,75 @@ type PurchaseEmailData = {
   siteUrl: string
 }
 
+// Domain Purchase Confirmation Email
+type DomainPurchaseEmailData = {
+  customerEmail: string
+  domainName: string
+  siteUrl: string
+}
+
+export function getDomainPurchaseConfirmation(data: DomainPurchaseEmailData) {
+  return {
+    subject: `Domain Purchase Confirmed: ${data.domainName}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+            .success-box { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; }
+            .domain-box { background: #fff; padding: 20px; border-radius: 5px; margin: 20px 0; text-align: center; border: 2px solid #667eea; }
+            .domain-name { font-size: 24px; font-weight: bold; color: #667eea; }
+            .steps { background: #fff; padding: 15px; border-radius: 5px; margin: 20px 0; }
+            .steps ol { margin: 0; padding-left: 20px; }
+            .steps li { margin: 10px 0; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Domain Purchase Confirmed!</h1>
+            </div>
+            <div class="content">
+              <div class="success-box">
+                Your domain purchase has been confirmed. We'll begin the transfer process shortly.
+              </div>
+
+              <div class="domain-box">
+                <p style="margin: 0 0 10px 0; color: #666;">You now own:</p>
+                <p class="domain-name">${data.domainName}</p>
+              </div>
+
+              <div class="steps">
+                <p><strong>What happens next:</strong></p>
+                <ol>
+                  <li>We'll initiate the domain transfer within 24-48 hours</li>
+                  <li>You'll receive an email with transfer instructions</li>
+                  <li>Follow the instructions to accept the transfer to your registrar</li>
+                  <li>The transfer typically completes within 5-7 days</li>
+                </ol>
+              </div>
+
+              <p>If you have any questions about your domain purchase or the transfer process, just reply to this email.</p>
+
+              <p>Thank you for your purchase!</p>
+
+              <p>Best regards,<br>SullysBlog Team</p>
+            </div>
+            <div class="footer">
+              <p>You're receiving this because you purchased a domain at SullysBlog.com</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `
+  }
+}
+
 export function getPurchaseConfirmation(data: PurchaseEmailData) {
   return {
     subject: `Your purchase: ${data.productName}`,

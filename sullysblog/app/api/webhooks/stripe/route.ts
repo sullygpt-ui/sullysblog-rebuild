@@ -3,7 +3,7 @@ import { headers } from 'next/headers'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { sendEmail } from '@/lib/email/sender'
-import { getPurchaseConfirmation } from '@/lib/email/templates'
+import { getPurchaseConfirmation, getDomainPurchaseConfirmation } from '@/lib/email/templates'
 
 // Ensure raw body is available for signature verification
 export const runtime = 'nodejs'
@@ -54,6 +54,8 @@ export async function POST(request: NextRequest) {
       // Check if this is a domain purchase
       const domainId = session.metadata?.domain_id
       if (domainId) {
+        const domainName = session.metadata?.domain_name
+
         const { error: domainError } = await supabase
           .from('domains_for_sale')
           .update({ is_active: false, updated_at: new Date().toISOString() })
@@ -61,6 +63,23 @@ export async function POST(request: NextRequest) {
 
         if (domainError) {
           console.error('Error marking domain as sold:', domainError)
+        }
+
+        // Send domain purchase confirmation email
+        const customerEmail = session.customer_email
+        if (customerEmail && domainName) {
+          const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://sullysblog.com'
+          const emailTemplate = getDomainPurchaseConfirmation({
+            customerEmail,
+            domainName,
+            siteUrl,
+          })
+
+          await sendEmail({
+            to: customerEmail,
+            subject: emailTemplate.subject,
+            html: emailTemplate.html,
+          })
         }
 
         return NextResponse.json({ received: true })
