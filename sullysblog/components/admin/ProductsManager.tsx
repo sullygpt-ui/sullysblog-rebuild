@@ -75,16 +75,11 @@ export function ProductsManager({ initialProducts }: ProductsManagerProps) {
 
       if (response.ok) {
         if (result.archived) {
-          // Product was archived instead of deleted
+          // Product was archived instead of deleted - remove from list
           alert('This product has orders and was archived instead of deleted.')
-          // Update the product status in the list
-          setProducts(products.map(p =>
-            p.id === id ? { ...p, status: 'archived' } : p
-          ))
-        } else {
-          // Product was fully deleted
-          setProducts(products.filter(p => p.id !== id))
         }
+        // Remove from list (whether deleted or archived)
+        setProducts(products.filter(p => p.id !== id))
       } else {
         alert(result.error || 'Failed to delete product')
       }
@@ -185,7 +180,6 @@ export function ProductsManager({ initialProducts }: ProductsManagerProps) {
             <option value="all">All Status</option>
             <option value="active">Active</option>
             <option value="draft">Draft</option>
-            <option value="archived">Archived</option>
           </select>
           <button
             onClick={() => {
