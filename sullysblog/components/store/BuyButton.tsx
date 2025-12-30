@@ -154,7 +154,7 @@ export function BuyButton({ product }: BuyButtonProps) {
       )}
 
       {/* Coupon Section */}
-      {product.price > 0 && (
+      {Number(product.price) > 0 && (
         <div className="space-y-2">
           {!showCouponInput && !appliedCoupon ? (
             <button
