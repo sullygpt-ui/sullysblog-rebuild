@@ -166,6 +166,16 @@ export default async function DomainResourcesPage() {
             </>
           )}
         </div>
+
+        {/* Listing Request Notice */}
+        <div className="mt-16 pt-8 border-t border-gray-700 text-center">
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
+            If you would like a free listing or to upgrade your current listing to a "Sponsored" or "Featured" listing for better visibility, please{' '}
+            <a href="/contact" className="text-gray-400 dark:text-gray-300 hover:text-gray-300 dark:hover:text-white underline">
+              send me your request
+            </a>.
+          </p>
+        </div>
       </div>
     </div>
   )
