@@ -31,7 +31,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   }
 
-  const post = await getPostBySlug(slug)
+  // Check if user is authenticated (admin) for preview
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const isAdmin = !!user
+
+  const post = await getPostBySlug(slug, isAdmin)
 
   if (!post) {
     return {
