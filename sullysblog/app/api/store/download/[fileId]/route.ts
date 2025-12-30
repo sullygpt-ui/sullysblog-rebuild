@@ -39,13 +39,19 @@ export async function GET(
     }
 
     // Generate signed URL (1 hour expiry)
+    console.log('Attempting to create signed URL for:', file.file_path)
     const { data: signedUrl, error: urlError } = await supabase.storage
       .from('product-files')
       .createSignedUrl(file.file_path, 3600) // 1 hour
 
     if (urlError || !signedUrl) {
       console.error('Error generating signed URL:', urlError)
-      return NextResponse.json({ error: 'Failed to generate download link' }, { status: 500 })
+      console.error('File path attempted:', file.file_path)
+      return NextResponse.json({
+        error: 'Failed to generate download link',
+        details: urlError?.message || 'Unknown error',
+        file_path: file.file_path
+      }, { status: 500 })
     }
 
     // Update download count
