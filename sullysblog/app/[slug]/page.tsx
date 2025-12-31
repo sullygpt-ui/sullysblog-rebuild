@@ -12,6 +12,7 @@ import { Sidebar } from '@/components/layout/Sidebar'
 import { StickySidebar } from '@/components/layout/StickySidebar'
 import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd'
 import { AdZone } from '@/components/ads/AdZone'
+import { ViewTracker } from '@/components/blog/ViewTracker'
 
 // Reserved routes that should not be caught by [slug]
 const RESERVED_ROUTES = ['test', 'blog', 'domain-name-dictionary', 'api', 'admin']
@@ -121,11 +122,6 @@ export default async function PostPage({ params }: Props) {
   // Check if this is a preview (not published)
   const isPreview = post.status !== 'published'
 
-  // Track view only for published posts (fire and forget - don't await)
-  if (!isPreview) {
-    supabase.rpc('increment_post_views', { post_slug: slug })
-  }
-
   // Get category IDs for related posts
   const categoryIds = post.categories.map(c => c.id)
 
@@ -149,6 +145,9 @@ export default async function PostPage({ params }: Props) {
 
   return (
     <>
+      {/* Track view for published posts (client-side) */}
+      {!isPreview && <ViewTracker slug={slug} />}
+
       {/* Preview Banner */}
       {isPreview && (
         <div className="bg-yellow-500 text-black py-3 px-4 -mx-4 mb-6">
