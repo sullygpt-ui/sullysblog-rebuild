@@ -14,6 +14,18 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return {
       beforeFiles: [
+        // Handle WordPress-style RSS feeds -> main RSS
+        {
+          source: '/',
+          has: [
+            {
+              type: 'query',
+              key: 'feed',
+              value: 'rss2',
+            },
+          ],
+          destination: '/rss.xml',
+        },
         // Handle /category/domians/feed/ (typo URL) -> domains feed
         {
           source: '/category/domians/feed',

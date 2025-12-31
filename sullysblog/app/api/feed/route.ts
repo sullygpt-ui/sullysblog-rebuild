@@ -19,12 +19,20 @@ export async function GET(request: NextRequest) {
     return new NextResponse('Category not found', { status: 404 })
   }
 
+  // Fetch post IDs in this category via junction table
+  const { data: postCategories } = await supabase
+    .from('post_categories')
+    .select('post_id')
+    .eq('category_id', category.id)
+
+  const postIds = postCategories?.map(pc => pc.post_id) || []
+
   // Fetch posts in this category
   const { data: posts } = await supabase
     .from('posts')
     .select('*')
     .eq('status', 'published')
-    .eq('category_id', category.id)
+    .in('id', postIds.length > 0 ? postIds : ['no-match'])
     .order('published_at', { ascending: false })
     .limit(50)
 
