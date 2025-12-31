@@ -64,7 +64,7 @@ export async function getAnalyticsData(days: number = 30): Promise<AnalyticsData
 
   const { data: clicks } = await supabase
     .from('resource_clicks')
-    .select('*, resources(name, category, listing_type)')
+    .select('*, resources!resource_clicks_resource_id_fkey(name, category, listing_type)')
     .gte('clicked_at', cutoffDate.toISOString())
     .order('clicked_at', { ascending: true })
 
