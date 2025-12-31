@@ -14,6 +14,7 @@ export function CommentForm({ postId, parentId, onSuccess, onCancel }: CommentFo
   const [email, setEmail] = useState('')
   const [website, setWebsite] = useState('')
   const [content, setContent] = useState('')
+  const [notifyReplies, setNotifyReplies] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -36,6 +37,7 @@ export function CommentForm({ postId, parentId, onSuccess, onCancel }: CommentFo
           authorEmail: email,
           authorUrl: website || null,
           content,
+          notifyReplies,
         }),
       })
 
@@ -139,6 +141,19 @@ export function CommentForm({ postId, parentId, onSuccess, onCancel }: CommentFo
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-y"
           placeholder="Write your comment..."
         />
+      </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          id="notify-replies"
+          checked={notifyReplies}
+          onChange={(e) => setNotifyReplies(e.target.checked)}
+          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+        />
+        <label htmlFor="notify-replies" className="text-sm text-gray-600 dark:text-gray-400">
+          Notify me of replies to my comment
+        </label>
       </div>
 
       <div className="flex items-center gap-3">

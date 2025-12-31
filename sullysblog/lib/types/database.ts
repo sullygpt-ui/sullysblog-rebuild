@@ -123,7 +123,39 @@ export interface Database {
           created_at: string
           ip_address: string | null
           user_agent: string | null
+          upvotes: number
+          downvotes: number
+          is_pinned: boolean
+          is_best: boolean
+          is_author_reply: boolean
+          notify_replies: boolean
+          reply_count: number
         }
+        Insert: Omit<Database['public']['Tables']['comments']['Row'], 'id' | 'created_at' | 'upvotes' | 'downvotes' | 'reply_count'>
+        Update: Partial<Database['public']['Tables']['comments']['Insert']>
+      }
+      comment_votes: {
+        Row: {
+          id: string
+          comment_id: string
+          voter_identifier: string
+          vote_type: 'up' | 'down'
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['comment_votes']['Row'], 'id' | 'created_at'>
+        Update: Partial<Database['public']['Tables']['comment_votes']['Insert']>
+      }
+      comment_notifications: {
+        Row: {
+          id: string
+          comment_id: string
+          recipient_email: string
+          notification_type: 'reply' | 'author_reply' | 'approved'
+          sent_at: string | null
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['comment_notifications']['Row'], 'id' | 'created_at'>
+        Update: Partial<Database['public']['Tables']['comment_notifications']['Insert']>
       }
       user_profiles: {
         Row: {

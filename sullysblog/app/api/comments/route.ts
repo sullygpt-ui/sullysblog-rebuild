@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { headers } from 'next/headers'
+import { Resend } from 'resend'
 
 // Use service role key to bypass RLS
 const supabase = createClient(
@@ -8,10 +9,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY!
 )
 
+const resend = new Resend(process.env.RESEND_API_KEY)
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { postId, parentId, authorName, authorEmail, authorUrl, content } = body
+    const { postId, parentId, authorName, authorEmail, authorUrl, content, notifyReplies = true } = body
 
     // Validation
     if (!postId || !authorName || !authorEmail || !content) {
@@ -85,6 +88,7 @@ export async function POST(request: NextRequest) {
         is_first_time: isFirstTime,
         ip_address: ipAddress,
         user_agent: userAgent,
+        notify_replies: notifyReplies,
       })
       .select()
       .single()
@@ -95,6 +99,33 @@ export async function POST(request: NextRequest) {
         { error: 'Failed to save comment' },
         { status: 500 }
       )
+    }
+
+    // If this is a reply, queue notification for parent comment author
+    if (parentId) {
+      const { data: parentComment } = await supabase
+        .from('comments')
+        .select('author_email, author_name, notify_replies')
+        .eq('id', parentId)
+        .single()
+
+      if (parentComment?.notify_replies && parentComment.author_email !== authorEmail.toLowerCase().trim()) {
+        // Get post title for the email
+        const { data: post } = await supabase
+          .from('posts')
+          .select('title, slug')
+          .eq('id', postId)
+          .single()
+
+        // Queue the notification (will be sent when comment is approved)
+        await supabase
+          .from('comment_notifications')
+          .insert({
+            comment_id: comment.id,
+            recipient_email: parentComment.author_email,
+            notification_type: 'reply',
+          })
+      }
     }
 
     return NextResponse.json({

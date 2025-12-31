@@ -7,7 +7,12 @@ export type CommentWithReplies = Comment & {
   replies: CommentWithReplies[]
 }
 
-export async function getCommentsByPostId(postId: string): Promise<CommentWithReplies[]> {
+export type CommentSortOption = 'newest' | 'oldest' | 'most_replies' | 'most_votes'
+
+export async function getCommentsByPostId(
+  postId: string,
+  sortBy: CommentSortOption = 'newest'
+): Promise<CommentWithReplies[]> {
   const supabase = await createClient()
 
   // Fetch all approved comments for this post
@@ -16,16 +21,40 @@ export async function getCommentsByPostId(postId: string): Promise<CommentWithRe
     .select('*')
     .eq('post_id', postId)
     .eq('status', 'approved')
-    .order('created_at', { ascending: true })
+    .order('created_at', { ascending: sortBy === 'oldest' })
 
   if (error || !comments || comments.length === 0) {
     return []
   }
 
-  return buildCommentTree(comments)
+  return buildCommentTree(comments, sortBy)
 }
 
-function buildCommentTree(comments: Comment[]): CommentWithReplies[] {
+export async function getPostAuthorEmail(postId: string): Promise<string | null> {
+  const supabase = await createClient()
+
+  const { data: post } = await supabase
+    .from('posts')
+    .select('author_id')
+    .eq('id', postId)
+    .single()
+
+  if (!post?.author_id) return null
+
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('id')
+    .eq('id', post.author_id)
+    .single()
+
+  if (!profile) return null
+
+  // Get email from auth.users via admin client
+  // For now, return null - author identification handled client-side
+  return null
+}
+
+function buildCommentTree(comments: Comment[], sortBy: CommentSortOption = 'newest'): CommentWithReplies[] {
   const commentMap = new Map<string, CommentWithReplies>()
   const rootComments: CommentWithReplies[] = []
 
@@ -57,6 +86,40 @@ function buildCommentTree(comments: Comment[]): CommentWithReplies[] {
       rootComments.push(commentWithReplies)
     }
   })
+
+  // Sort root comments based on sortBy option
+  const sortComments = (a: CommentWithReplies, b: CommentWithReplies): number => {
+    // Pinned comments always first
+    if (a.is_pinned && !b.is_pinned) return -1
+    if (!a.is_pinned && b.is_pinned) return 1
+
+    // Best comments second
+    if (a.is_best && !b.is_best) return -1
+    if (!a.is_best && b.is_best) return 1
+
+    switch (sortBy) {
+      case 'oldest':
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      case 'most_replies':
+        return (b.reply_count || 0) - (a.reply_count || 0)
+      case 'most_votes':
+        return ((b.upvotes || 0) - (b.downvotes || 0)) - ((a.upvotes || 0) - (a.downvotes || 0))
+      case 'newest':
+      default:
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    }
+  }
+
+  rootComments.sort(sortComments)
+
+  // Sort replies within each thread (always chronological for readability)
+  const sortReplies = (comment: CommentWithReplies) => {
+    comment.replies.sort((a, b) =>
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    )
+    comment.replies.forEach(sortReplies)
+  }
+  rootComments.forEach(sortReplies)
 
   return rootComments
 }
