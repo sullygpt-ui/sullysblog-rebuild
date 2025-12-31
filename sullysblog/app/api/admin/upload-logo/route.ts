@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,8 +39,9 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer()
     const buffer = new Uint8Array(arrayBuffer)
 
-    // Upload to Supabase Storage
-    const { data, error } = await supabase.storage
+    // Upload to Supabase Storage using admin client to bypass RLS
+    const adminClient = createAdminClient()
+    const { data, error } = await adminClient.storage
       .from('resource-logos')
       .upload(filename, buffer, {
         contentType: file.type,
@@ -48,11 +50,11 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Upload error:', error)
-      return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 })
+      return NextResponse.json({ error: `Failed to upload file: ${error.message}` }, { status: 500 })
     }
 
     // Get public URL
-    const { data: urlData } = supabase.storage
+    const { data: urlData } = adminClient.storage
       .from('resource-logos')
       .getPublicUrl(filename)
 
