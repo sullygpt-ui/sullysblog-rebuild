@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 interface LoginFormProps {
   redirectTo: string
@@ -91,6 +92,15 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
             disabled={loading}
           />
         </div>
+      </div>
+
+      <div className="flex items-center justify-end">
+        <Link
+          href="/auth/forgot-password"
+          className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
+        >
+          Forgot your password?
+        </Link>
       </div>
 
       <div>
