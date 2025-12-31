@@ -62,13 +62,19 @@ export async function getAnalyticsData(days: number = 30): Promise<AnalyticsData
   const cutoffDate = new Date()
   cutoffDate.setDate(cutoffDate.getDate() - days)
 
+  // Get total count first (separate query to avoid 1000 row limit)
+  const { count: totalClicks } = await supabase
+    .from('resource_clicks')
+    .select('*', { count: 'exact', head: true })
+    .gte('clicked_at', cutoffDate.toISOString())
+
+  // Get click details for charts (with higher limit for accuracy)
   const { data: clicks } = await supabase
     .from('resource_clicks')
     .select('*, resources!resource_clicks_resource_id_fkey(name, category, listing_type)')
     .gte('clicked_at', cutoffDate.toISOString())
     .order('clicked_at', { ascending: true })
-
-  const totalClicks = clicks?.length || 0
+    .limit(10000)
 
   // Top resources by clicks
   const resourceClickCounts: Record<string, { name: string; clicks: number; category: string; listing_type: string }> = {}
@@ -133,7 +139,7 @@ export async function getAnalyticsData(days: number = 30): Promise<AnalyticsData
 
   return {
     totalResources,
-    totalClicks,
+    totalClicks: totalClicks || 0,
     featuredCount,
     sponsoredCount,
     freeCount,
