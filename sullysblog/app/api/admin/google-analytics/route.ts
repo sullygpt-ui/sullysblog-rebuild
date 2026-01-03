@@ -4,9 +4,22 @@ import { BetaAnalyticsDataClient } from '@google-analytics/data'
 import type { GAMetrics, GATrafficSource, GATopPage, GADailyMetric } from '@/lib/types/google-analytics'
 
 function getAnalyticsClient() {
+  // Handle both escaped \n and actual newlines in the private key
+  let privateKey = process.env.GA_PRIVATE_KEY || ''
+
+  // If the key contains literal \n (backslash-n), replace with actual newlines
+  if (privateKey.includes('\\n')) {
+    privateKey = privateKey.replace(/\\n/g, '\n')
+  }
+
+  // Also handle double-escaped \\n that might occur
+  if (privateKey.includes('\\\\n')) {
+    privateKey = privateKey.replace(/\\\\n/g, '\n')
+  }
+
   const credentials = {
     client_email: process.env.GA_CLIENT_EMAIL,
-    private_key: process.env.GA_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    private_key: privateKey,
   }
 
   return new BetaAnalyticsDataClient({ credentials })
@@ -39,11 +52,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Debug: log that we have credentials (not the actual values)
+    const rawKey = process.env.GA_PRIVATE_KEY || ''
     console.log('GA Config:', {
       propertyId,
       clientEmail: process.env.GA_CLIENT_EMAIL,
-      privateKeyLength: process.env.GA_PRIVATE_KEY?.length,
-      privateKeyStart: process.env.GA_PRIVATE_KEY?.substring(0, 30),
+      privateKeyLength: rawKey.length,
+      hasLiteralBackslashN: rawKey.includes('\\n'),
+      hasActualNewlines: rawKey.includes('\n'),
+      startsCorrectly: rawKey.startsWith('-----BEGIN'),
     })
 
     const analyticsClient = getAnalyticsClient()

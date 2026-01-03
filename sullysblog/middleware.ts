@@ -12,9 +12,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.rewrite(feedUrl)
   }
 
-  // Handle /category/:slug/feed URLs
+  // Handle /category/:slug/feed URLs (including /atom suffix)
   const pathname = request.nextUrl.pathname
-  const categoryFeedMatch = pathname.match(/^\/category\/([^/]+)\/feed\/?$/)
+  const categoryFeedMatch = pathname.match(/^\/category\/([^/]+)\/feed(\/atom)?\/?$/)
   if (categoryFeedMatch) {
     const slug = categoryFeedMatch[1]
     const feedUrl = new URL('/api/feed', request.url)
