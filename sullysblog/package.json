@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
+    "@google-analytics/data": "^5.2.1",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.89.0",
     "@tiptap/extension-image": "^2.10.3",
@@ -37,6 +38,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "mysql2": "^3.11.5",
+    "puppeteer": "^24.34.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
