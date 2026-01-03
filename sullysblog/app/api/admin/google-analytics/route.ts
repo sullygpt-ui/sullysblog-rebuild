@@ -4,18 +4,34 @@ import { BetaAnalyticsDataClient } from '@google-analytics/data'
 import type { GAMetrics, GATrafficSource, GATopPage, GADailyMetric } from '@/lib/types/google-analytics'
 
 function getAnalyticsClient() {
-  // Handle both escaped \n and actual newlines in the private key
   let privateKey = process.env.GA_PRIVATE_KEY || ''
 
-  // If the key contains literal \n (backslash-n), replace with actual newlines
-  if (privateKey.includes('\\n')) {
-    privateKey = privateKey.replace(/\\n/g, '\n')
+  // Check if it's base64 encoded (no spaces, no dashes at start)
+  if (process.env.GA_PRIVATE_KEY_BASE64) {
+    // If using base64-encoded key
+    privateKey = Buffer.from(process.env.GA_PRIVATE_KEY_BASE64, 'base64').toString('utf8')
+  } else {
+    // Handle escaped newlines - try multiple patterns
+    privateKey = privateKey
+      .split('\\n').join('\n')
+      .split('\\\\n').join('\n')
   }
 
-  // Also handle double-escaped \\n that might occur
-  if (privateKey.includes('\\\\n')) {
-    privateKey = privateKey.replace(/\\\\n/g, '\n')
+  // Ensure the key has proper line breaks
+  if (!privateKey.includes('\n') && privateKey.includes('-----BEGIN')) {
+    // Key is all on one line - add proper line breaks
+    privateKey = privateKey
+      .replace('-----BEGIN PRIVATE KEY-----', '-----BEGIN PRIVATE KEY-----\n')
+      .replace('-----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----')
   }
+
+  console.log('Private key debug:', {
+    length: privateKey.length,
+    hasNewlines: privateKey.includes('\n'),
+    lineCount: privateKey.split('\n').length,
+    startsCorrectly: privateKey.trim().startsWith('-----BEGIN PRIVATE KEY-----'),
+    endsCorrectly: privateKey.trim().endsWith('-----END PRIVATE KEY-----'),
+  })
 
   const credentials = {
     client_email: process.env.GA_CLIENT_EMAIL,
