@@ -30,9 +30,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'GA_PROPERTY_ID not configured' }, { status: 500 })
     }
 
-    if (!process.env.GA_CLIENT_EMAIL || !process.env.GA_PRIVATE_KEY) {
-      return NextResponse.json({ error: 'Google Analytics credentials not configured' }, { status: 500 })
+    if (!process.env.GA_CLIENT_EMAIL) {
+      return NextResponse.json({ error: 'GA_CLIENT_EMAIL not configured' }, { status: 500 })
     }
+
+    if (!process.env.GA_PRIVATE_KEY) {
+      return NextResponse.json({ error: 'GA_PRIVATE_KEY not configured' }, { status: 500 })
+    }
+
+    // Debug: log that we have credentials (not the actual values)
+    console.log('GA Config:', {
+      propertyId,
+      clientEmail: process.env.GA_CLIENT_EMAIL,
+      privateKeyLength: process.env.GA_PRIVATE_KEY?.length,
+      privateKeyStart: process.env.GA_PRIVATE_KEY?.substring(0, 30),
+    })
 
     const analyticsClient = getAnalyticsClient()
 
@@ -58,8 +70,9 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error fetching GA data:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Failed to fetch analytics data' },
+      { error: `Failed to fetch analytics data: ${errorMessage}` },
       { status: 500 }
     )
   }
