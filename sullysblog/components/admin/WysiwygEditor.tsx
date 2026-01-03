@@ -218,10 +218,10 @@ export function WysiwygEditor({ content, onChange }: WysiwygEditorProps) {
           type="button"
           onClick={() => editor.chain().focus().setHorizontalRule().run()}
           className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
-          title="Horizontal Rule"
+          title="Horizontal Rule (Divider)"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14" />
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <rect x="2" y="11" width="20" height="2" rx="1" />
           </svg>
         </button>
 
