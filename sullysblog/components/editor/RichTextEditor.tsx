@@ -262,6 +262,14 @@ export function RichTextEditor({ content, onChange, placeholder, postId }: RichT
             >
               Code
             </button>
+            <button
+              type="button"
+              onClick={() => editor.chain().focus().setHorizontalRule().run()}
+              className="px-3 py-1 rounded text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+              title="Insert horizontal divider"
+            >
+              ― HR
+            </button>
 
             <div className="w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
 
