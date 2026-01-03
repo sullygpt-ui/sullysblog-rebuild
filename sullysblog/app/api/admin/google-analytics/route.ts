@@ -25,14 +25,6 @@ function getAnalyticsClient() {
       .replace('-----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----')
   }
 
-  console.log('Private key debug:', {
-    length: privateKey.length,
-    hasNewlines: privateKey.includes('\n'),
-    lineCount: privateKey.split('\n').length,
-    startsCorrectly: privateKey.trim().startsWith('-----BEGIN PRIVATE KEY-----'),
-    endsCorrectly: privateKey.trim().endsWith('-----END PRIVATE KEY-----'),
-  })
-
   const credentials = {
     client_email: process.env.GA_CLIENT_EMAIL,
     private_key: privateKey,
@@ -66,17 +58,6 @@ export async function GET(request: NextRequest) {
     if (!process.env.GA_PRIVATE_KEY) {
       return NextResponse.json({ error: 'GA_PRIVATE_KEY not configured' }, { status: 500 })
     }
-
-    // Debug: log that we have credentials (not the actual values)
-    const rawKey = process.env.GA_PRIVATE_KEY || ''
-    console.log('GA Config:', {
-      propertyId,
-      clientEmail: process.env.GA_CLIENT_EMAIL,
-      privateKeyLength: rawKey.length,
-      hasLiteralBackslashN: rawKey.includes('\\n'),
-      hasActualNewlines: rawKey.includes('\n'),
-      startsCorrectly: rawKey.startsWith('-----BEGIN'),
-    })
 
     const analyticsClient = getAnalyticsClient()
 
